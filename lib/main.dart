@@ -31,14 +31,13 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   final GlobalKey _refreshIndicatorKey = GlobalKey();
-  LineChartData chartDataTotal;
-  LineChartData chartDataRecovered;
-  LineChartData chartDataDeaths;
   var countryData = {
-    "Global" : [0, 0, 0, 0, 0, 0, 0, 0.0]
+    "Global" : [0, 0, 0, 0, 0, 0, 0, 0.0, true]
   };
+  var chartsData = {};
   String country = "Global";
 
+  int springAnimationDuration = 750;
   AnimationController _controller;
   List<Color> gradientColorsTotal = [
     Colors.grey[600],
@@ -60,9 +59,11 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 1500),
     );
 
-    chartDataTotal = mainData(["0", "1"], [0, 1], gradientColorsTotal);
-    chartDataRecovered = mainData(["0", "1"], [0, 1], gradientColorsRecovered);
-    chartDataDeaths = mainData(["0", "1"], [0, 1], gradientColorsDeaths);
+    chartsData["Global"] = [
+      mainData(["0", "1"], [0, 1], gradientColorsTotal),
+      mainData(["0", "1"], [0, 1], gradientColorsRecovered),
+      mainData(["0", "1"], [0, 1], gradientColorsDeaths)
+    ];
 
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -70,7 +71,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     });
   }
 
-  List<num> parseRow(List<String> row, {int offset = 0}) {
+  List parseRow(List<String> row, bool hasInnerTag, String link) {
+    int offset = hasInnerTag ? 0 : -2;
     return [
       parseInteger(row[5 + offset]),
       parseInteger(row[7 + offset]),
@@ -79,7 +81,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       parseInteger(row[13 + offset]),
       parseInteger(row[15 + offset]),
       parseInteger(row[17 + offset]),
-      parseDouble(row[19 + offset])
+      parseDouble(row[19 + offset]),
+      link
     ];
   }
 
@@ -109,7 +112,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   }
 
   Future<void> refreshData() async {
-    var url = 'https://www.worldometers.info/coronavirus';
+    String localCountry = country.toString();
+    var url = 'https://www.worldometers.info/coronavirus/';
     var response = await http.get(url);
     if (response.statusCode == 200) {
       var row = response.body
@@ -117,22 +121,30 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           .split("</tr>")[0]
           .split(">");
 
-      countryData["Global"] = parseRow(row);
+      countryData["Global"] = parseRow(row, true, "");
 
       var tbody = getInnerString(response.body, "<tbody>", "</tbody>");
       var rows = tbody.split("<tr style=\"\">");
       rows.skip(1).forEach((rawRow) {
         row = rawRow.split(">");
-        bool withLink = rawRow.contains("</a>") || rawRow.contains("</span>");
-        countryData[normalizeName(row[withLink ? 2 : 1].split("<")[0])] =
-            parseRow(row, offset: withLink ? 0 : -2);
+        bool hasInnerTag = rawRow.contains("</a>") || rawRow.contains("</span>");
+        countryData[normalizeName(row[hasInnerTag ? 2 : 1].split("<")[0])] =
+            parseRow(row, hasInnerTag, rawRow.contains("</a>") ? getInnerString(rawRow, "href=\"", "\"") : null);
       });
 
       setState(() {
         _controller.forward(from: 0.0);
       });
 
-      if (country == "Global") {
+
+      if (chartsData[localCountry] != null) {
+        if(localCountry != "Global") {
+          url += countryData[localCountry][8];
+          response = await http.get(url);
+          if (response.statusCode != 200)
+            return;
+        }
+
         var xLabels = response.body
             .split("categories: [")[4]
             .split("]")[0]
@@ -158,12 +170,12 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             .toList();
 
         var xLabels3 = response.body
-            .split("categories: [")[6]
+            .split("categories: [")[localCountry == "Global" ? 6 : 8]
             .split("]")[0]
             .replaceAll("\"", "")
             .split(",");
         var values3 = response.body
-            .split("data: [")[6]
+            .split("data: [")[localCountry == "Global" ? 6 : 8]
             .split("]")[0]
             .split(",")
             .map(int.parse)
@@ -177,9 +189,10 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         var dataDeaths = mainData(xLabels3, values3, gradientColorsDeaths);
 
         setState(() {
-          chartDataTotal = dataTotal;
-          chartDataRecovered = dataRecovered;
-          chartDataDeaths = dataDeaths;
+          //springAnimationDuration = 1000;
+          chartsData[localCountry][0] = dataTotal;
+          chartsData[localCountry][1] = dataRecovered;
+          chartsData[localCountry][2] = dataDeaths;
         });
       }
     }
@@ -199,6 +212,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         title: Text("Covid19 Stats - " + country),
       ),
       body: LiquidPullToRefresh(
+        springAnimationDurationInMilliseconds: springAnimationDuration,
         key: _refreshIndicatorKey,
         showChildOpacityTransition: false,
         onRefresh: refreshData,
@@ -234,7 +248,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                   textStyle: TextStyle(color: Colors.white, fontSize: 18),
                   animation: new StepTween(
                     begin: 0, //prevTotalCases,
-                    end: countryData[country][7].toInt(),
+                    end: (countryData[country][7] as double).toInt(),
                   ).animate(_controller),
                 ),
               ],
@@ -255,7 +269,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 ),
               ],
             ),
-            country == "Global" ? createGraph(chartDataTotal) : SizedBox(),
+            chartsData[country] != null ? createGraph(chartsData[country][0]) : SizedBox(),
             SizedBox(height: 30),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -289,7 +303,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 ),
               ],
             ),
-            country == "Global" ? createGraph(chartDataRecovered) : SizedBox(),
+            chartsData[country] != null ? createGraph(chartsData[country][1]) : SizedBox(),
             SizedBox(height: 30),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -339,8 +353,37 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 ),
               ],
             ),
-            country == "Global" ? createGraph(chartDataDeaths) : SizedBox(),
-            SizedBox(height: 30),
+            chartsData[country] != null ? createGraph(chartsData[country][2]) : SizedBox(),
+            SizedBox(height: 50),
+            chartsData[country] == null ? FlatButton(
+              child: Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.grey,
+                  borderRadius: BorderRadius.circular(4)
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                        "Load Charts",
+                        style: TextStyle(color: Color(0xff232d37), fontSize: 18)
+                    ),
+                  ],
+                )
+              ),
+              onPressed: () {
+                setState(() {
+                  //springAnimationDuration = 500;
+                  chartsData[country] = [
+                    mainData(["0", "1"], [0, 1], gradientColorsTotal),
+                    mainData(["0", "1"], [0, 1], gradientColorsRecovered),
+                    mainData(["0", "1"], [0, 1], gradientColorsDeaths)
+                  ];
+                });
+                (_refreshIndicatorKey.currentState as dynamic)?.show();
+              },
+            ) : SizedBox(),
           ],
         ),
       ),
@@ -443,7 +486,12 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             fontSize: 12,
           ),
           getTitles: (value) {
-            return (value.toInt() ~/ 1000).toString() + "K";
+            var label;
+            if (value >= 1000)
+              label = (value.toInt() ~/ 1000).toString() + "K";
+            else
+              label = value.toInt().toString();
+            return label;
           },
           reservedSize: 28,
           margin: 12,
