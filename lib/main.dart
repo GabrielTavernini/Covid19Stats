@@ -355,7 +355,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             ),
             chartsData[country] != null ? createGraph(chartsData[country][2]) : SizedBox(),
             SizedBox(height: 50),
-            chartsData[country] == null ? FlatButton(
+            chartsData[country] == null && countryData[country][8] != null ? FlatButton(
               child: Container(
                 padding: EdgeInsets.all(10),
                 decoration: BoxDecoration(
