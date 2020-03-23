@@ -31,9 +31,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   final GlobalKey _refreshIndicatorKey = GlobalKey();
-  var countryData = {
-    "Global": [0, 0, 0, 0, 0, 0, 0, 0.0, true]
-  };
+  var countryData = { "Global": [0, 0, 0, 0, 0, 0, 0, 0.0, true] };
   var chartsData = {};
   String country = "Global";
 
