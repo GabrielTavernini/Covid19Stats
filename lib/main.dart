@@ -32,7 +32,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   final GlobalKey _refreshIndicatorKey = GlobalKey();
   var countryData = {
-    "Global" : [0, 0, 0, 0, 0, 0, 0, 0.0, true]
+    "Global": [0, 0, 0, 0, 0, 0, 0, 0.0, true]
   };
   var chartsData = {};
   String country = "Global";
@@ -60,9 +60,24 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     );
 
     chartsData["Global"] = [
-      mainData(["0", "1"], [0, 1], gradientColorsTotal),
-      mainData(["0", "1"], [0, 1], gradientColorsRecovered),
-      mainData(["0", "1"], [0, 1], gradientColorsDeaths)
+      [
+        ["0", "1"],
+        [0, 1],
+        gradientColorsTotal
+      ],
+      [
+        ["0", "1"],
+        [0, 1],
+        gradientColorsRecovered
+      ],
+      [
+        ["0", "1"],
+        [0, 1],
+        gradientColorsDeaths
+      ],
+      false,
+      false,
+      false
     ];
 
     super.initState();
@@ -96,8 +111,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
   double parseDouble(String s) {
     try {
-      return double.parse(
-          s.split("<")[0].replaceAll(",", "").replaceAll("+", ""));
+      return double.parse(s.split("<")[0].replaceAll(",", "").replaceAll("+", ""));
     } catch (e) {
       return 0;
     }
@@ -116,10 +130,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     var url = 'https://www.worldometers.info/coronavirus/';
     var response = await http.get(url);
     if (response.statusCode == 200) {
-      var row = response.body
-          .split("<tr class=\"total_row\">")[1]
-          .split("</tr>")[0]
-          .split(">");
+      var row = response.body.split("<tr class=\"total_row\">")[1].split("</tr>")[0].split(">");
 
       countryData["Global"] = parseRow(row, true, "");
 
@@ -136,38 +147,18 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         _controller.forward(from: 0.0);
       });
 
-
       if (chartsData[localCountry] != null) {
-        if(localCountry != "Global") {
+        if (localCountry != "Global") {
           url += countryData[localCountry][8];
           response = await http.get(url);
-          if (response.statusCode != 200)
-            return;
+          if (response.statusCode != 200) return;
         }
 
-        var xLabels = response.body
-            .split("categories: [")[4]
-            .split("]")[0]
-            .replaceAll("\"", "")
-            .split(",");
-        var values = response.body
-            .split("data: [")[4]
-            .split("]")[0]
-            .split(",")
-            .map(int.parse)
-            .toList();
+        var xLabels = response.body.split("categories: [")[4].split("]")[0].replaceAll("\"", "").split(",");
+        var values = response.body.split("data: [")[4].split("]")[0].split(",").map(int.parse).toList();
 
-        var xLabels2 = response.body
-            .split("categories: [")[1]
-            .split("]")[0]
-            .replaceAll("\"", "")
-            .split(",");
-        var values2 = response.body
-            .split("data: [")[1]
-            .split("]")[0]
-            .split(",")
-            .map(int.parse)
-            .toList();
+        var xLabels2 = response.body.split("categories: [")[1].split("]")[0].replaceAll("\"", "").split(",");
+        var values2 = response.body.split("data: [")[1].split("]")[0].split(",").map(int.parse).toList();
 
         var xLabels3 = response.body
             .split("categories: [")[localCountry == "Global" ? 6 : 8]
@@ -181,18 +172,16 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             .map(int.parse)
             .toList();
 
-        var dataTotal = mainData(xLabels, values, gradientColorsTotal);
+
         values2.asMap().forEach((index, value) {
           values2[index] = values[index] - values3[index] - value;
         });
-        var dataRecovered = mainData(xLabels2, values2, gradientColorsRecovered);
-        var dataDeaths = mainData(xLabels3, values3, gradientColorsDeaths);
 
         setState(() {
           //springAnimationDuration = 1000;
-          chartsData[localCountry][0] = dataTotal;
-          chartsData[localCountry][1] = dataRecovered;
-          chartsData[localCountry][2] = dataDeaths;
+          chartsData[localCountry][0] = [xLabels, values, gradientColorsTotal];
+          chartsData[localCountry][1] = [xLabels2, values2, gradientColorsRecovered];
+          chartsData[localCountry][2] = [xLabels3, values3, gradientColorsDeaths];
         });
       }
     }
@@ -232,7 +221,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                   textStyle: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
                   animation: new StepTween(
                     begin: 0, //prevTotalCases,
-                    end:  countryData[country][0],
+                    end: countryData[country][0],
                   ).animate(_controller),
                 ),
               ],
@@ -269,7 +258,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 ),
               ],
             ),
-            chartsData[country] != null ? createGraph(chartsData[country][0]) : SizedBox(),
+            chartsData[country] != null ? createGraph(1) : SizedBox(),
             SizedBox(height: 30),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -282,7 +271,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                   textStyle: TextStyle(color: Colors.green, fontSize: 22, fontWeight: FontWeight.bold),
                   animation: new StepTween(
                     begin: 0, //prevRecoveredCases,
-                    end:  countryData[country][4],
+                    end: countryData[country][4],
                   ).animate(_controller),
                 )
               ],
@@ -303,7 +292,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 ),
               ],
             ),
-            chartsData[country] != null ? createGraph(chartsData[country][1]) : SizedBox(),
+            chartsData[country] != null ? createGraph(2) : SizedBox(),
             SizedBox(height: 30),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -316,7 +305,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                   textStyle: TextStyle(color: Colors.red, fontSize: 22, fontWeight: FontWeight.bold),
                   animation: new StepTween(
                     begin: 0, //prevDeathCases,
-                    end:  countryData[country][2],
+                    end: countryData[country][2],
                   ).animate(_controller),
                 )
               ],
@@ -353,37 +342,47 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 ),
               ],
             ),
-            chartsData[country] != null ? createGraph(chartsData[country][2]) : SizedBox(),
+            chartsData[country] != null ? createGraph(3) : SizedBox(),
             SizedBox(height: 50),
-            chartsData[country] == null && countryData[country][8] != null ? FlatButton(
-              child: Container(
-                padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.grey,
-                  borderRadius: BorderRadius.circular(4)
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                        "Load Charts",
-                        style: TextStyle(color: Color(0xff232d37), fontSize: 18)
-                    ),
-                  ],
-                )
-              ),
-              onPressed: () {
-                setState(() {
-                  //springAnimationDuration = 500;
-                  chartsData[country] = [
-                    mainData(["0", "1"], [0, 1], gradientColorsTotal),
-                    mainData(["0", "1"], [0, 1], gradientColorsRecovered),
-                    mainData(["0", "1"], [0, 1], gradientColorsDeaths)
-                  ];
-                });
-                (_refreshIndicatorKey.currentState as dynamic)?.show();
-              },
-            ) : SizedBox(),
+            chartsData[country] == null && countryData[country][8] != null
+                ? FlatButton(
+                    child: Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.circular(4)),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Text("Load Charts", style: TextStyle(color: Color(0xff232d37), fontSize: 18)),
+                          ],
+                        )),
+                    onPressed: () {
+                      setState(() {
+                        //springAnimationDuration = 500;
+                        chartsData[country] = [
+                          [
+                            ["0", "1"],
+                            [0, 1],
+                            gradientColorsTotal
+                          ],
+                          [
+                            ["0", "1"],
+                            [0, 1],
+                            gradientColorsRecovered
+                          ],
+                          [
+                            ["0", "1"],
+                            [0, 1],
+                            gradientColorsDeaths
+                          ],
+                          false,
+                          false,
+                          false
+                        ];
+                      });
+                      (_refreshIndicatorKey.currentState as dynamic)?.show();
+                    },
+                  )
+                : SizedBox(),
           ],
         ),
       ),
@@ -415,21 +414,58 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     }
   }
 
-  AspectRatio createGraph(LineChartData lineChartData) {
-    return AspectRatio(
-      aspectRatio: 1.70,
-      child: Container(
-        child: Padding(
-            padding: const EdgeInsets.only(
-                right: 18.0, left: 12.0, top: 24, bottom: 12),
-            child: new LineChart(lineChartData,
-                swapAnimationDuration: Duration(seconds: 1))),
-      ),
+  Widget createGraph(int type) {
+    var daily = chartsData[country][2 + type];
+    var lineChartData = daily ? dailyData(chartsData[country][type - 1]) : totalData(chartsData[country][type - 1]);
+    return Stack(
+      children: <Widget>[
+        AspectRatio(
+          aspectRatio: 1.70,
+          child: Container(
+            child: Padding(
+                padding: const EdgeInsets.only(right: 18.0, left: 12.0, top: 24, bottom: 12),
+                child: new LineChart(lineChartData, swapAnimationDuration: Duration(seconds: 1))),
+          ),
+        ),
+        Positioned.fill(
+          child: Align(
+            alignment: Alignment.bottomRight,
+            child: Container(
+              margin: EdgeInsets.fromLTRB(0, 0, 10, 35),
+              child: FlatButton(
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                onPressed: () {
+                  setState(() {
+                    chartsData[country][2 + type] = !chartsData[country][2 + type];
+                  });
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    Icon(Icons.autorenew, color: Colors.white, size: 12),
+                    Text(
+                      chartsData[country][2 + type] ? ' Daily' : ' Total',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
-  LineChartData mainData(
-      xLabels, List<int> values, List<Color> gradientColors) {
+  LineChartData totalData(List data) {
+    //xLabels, List<int> values, List<Color> gradientColors) {
+    var xLabels = data[0] as List<String>;
+    var values = data[1] as List<int>;
+    var gradientColors = data[2] as List<Color>;
     double vInterval = values.reduce(max).toDouble() / 4;
     double hInterval = xLabels.length.toDouble() / 4;
 
@@ -468,10 +504,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           interval: hInterval,
           showTitles: true,
           reservedSize: 22,
-          textStyle: TextStyle(
-              color: const Color(0xff68737d),
-              fontWeight: FontWeight.bold,
-              fontSize: 12),
+          textStyle: TextStyle(color: const Color(0xff68737d), fontWeight: FontWeight.bold, fontSize: 12),
           getTitles: (value) {
             return xLabels[value.toInt()];
           },
@@ -497,9 +530,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           margin: 12,
         ),
       ),
-      borderData: FlBorderData(
-          show: true,
-          border: Border.all(color: const Color(0xff37434d), width: 1)),
+      borderData: FlBorderData(show: true, border: Border.all(color: const Color(0xff37434d), width: 1)),
       minX: 0,
       maxX: (values.length - 1).toDouble(),
       minY: 0,
@@ -516,8 +547,106 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           ),
           belowBarData: BarAreaData(
             show: true,
-            colors:
-                gradientColors.map((color) => color.withOpacity(0.3)).toList(),
+            colors: gradientColors.map((color) => color.withOpacity(0.3)).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  LineChartData dailyData(List data) {
+    //xLabels, List<int> values, List<Color> gradientColors) {
+    var xLabels = data[0] as List<String>;
+    var values = data[1] as List<int>;
+    var gradientColors = data[2] as List<Color>;
+
+    double maxValue = 0;
+    List<FlSpot> spots = [];
+    for (int i = values.length - 1; i > 0; i--) {
+      double val = (values[i] - values[i - 1]).toDouble();
+      spots.add(FlSpot(i.toDouble(), val));
+      maxValue = val > maxValue ? val : maxValue;
+    }
+    spots.add(FlSpot(0.0, values[0].toDouble()));
+    spots = new List.from(spots.reversed);
+
+    double vInterval = maxValue / 4;
+    double hInterval = xLabels.length.toDouble() / 4;
+
+    FlLine gridLine = FlLine(
+      color: Color(0xff37434d),
+      strokeWidth: 1,
+    );
+
+    FlLine nullLine = FlLine(
+      color: Colors.transparent,
+      strokeWidth: 0,
+    );
+
+    return LineChartData(
+      gridData: FlGridData(
+        show: true,
+        horizontalInterval: vInterval,
+        verticalInterval: 5.0,
+        drawVerticalLine: true,
+        getDrawingHorizontalLine: (value) {
+          return gridLine;
+        },
+        getDrawingVerticalLine: (value) {
+          if (value % hInterval < 5) return gridLine;
+          return nullLine;
+        },
+      ),
+      titlesData: FlTitlesData(
+        show: true,
+        bottomTitles: SideTitles(
+          interval: hInterval,
+          showTitles: true,
+          reservedSize: 22,
+          textStyle: TextStyle(color: const Color(0xff68737d), fontWeight: FontWeight.bold, fontSize: 12),
+          getTitles: (value) {
+            return xLabels[value.toInt()];
+          },
+          margin: 8,
+        ),
+        leftTitles: SideTitles(
+          interval: vInterval,
+          showTitles: true,
+          textStyle: TextStyle(
+            color: const Color(0xff67727d),
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
+          ),
+          getTitles: (value) {
+            var label;
+            if (value >= 1000)
+              label = (value.toInt() ~/ 1000).toString() + "K";
+            else
+              label = value.toInt().toString();
+            return label;
+          },
+          reservedSize: 28,
+          margin: 12,
+        ),
+      ),
+      borderData: FlBorderData(show: true, border: Border.all(color: const Color(0xff37434d), width: 1)),
+      minX: 0,
+      maxX: (values.length - 1).toDouble(),
+      minY: 0,
+      maxY: maxValue,
+      lineBarsData: [
+        LineChartBarData(
+          spots: spots,
+          isCurved: true,
+          colors: gradientColors,
+          barWidth: 4,
+          isStrokeCapRound: true,
+          dotData: const FlDotData(
+            show: false,
+          ),
+          belowBarData: BarAreaData(
+            show: true,
+            colors: gradientColors.map((color) => color.withOpacity(0.3)).toList(),
           ),
         ),
       ],
@@ -526,8 +655,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 }
 
 class Counter extends AnimatedWidget {
-  Counter({Key key, this.animation, this.textStyle})
-      : super(key: key, listenable: animation);
+  Counter({Key key, this.animation, this.textStyle}) : super(key: key, listenable: animation);
   final Animation<int> animation;
   final TextStyle textStyle;
 
