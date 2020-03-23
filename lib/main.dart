@@ -31,7 +31,9 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   final GlobalKey _refreshIndicatorKey = GlobalKey();
-  var countryData = { "Global": [0, 0, 0, 0, 0, 0, 0, 0.0, true] };
+  var countryData = {
+    "Global": [0, 0, 0, 0, 0, 0, 0, 0.0, true]
+  };
   var chartsData = {};
   String country = "Global";
 
@@ -169,7 +171,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             .split(",")
             .map(int.parse)
             .toList();
-
 
         values2.asMap().forEach((index, value) {
           values2[index] = values[index] - values3[index] - value;
@@ -357,24 +358,10 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                       setState(() {
                         //springAnimationDuration = 500;
                         chartsData[country] = [
-                          [
-                            ["0", "1"],
-                            [0, 1],
-                            gradientColorsTotal
-                          ],
-                          [
-                            ["0", "1"],
-                            [0, 1],
-                            gradientColorsRecovered
-                          ],
-                          [
-                            ["0", "1"],
-                            [0, 1],
-                            gradientColorsDeaths
-                          ],
-                          false,
-                          false,
-                          false
+                          [["0", "1"], [0, 1], gradientColorsTotal],
+                          [["0", "1"], [0, 1], gradientColorsRecovered],
+                          [["0", "1"], [0, 1], gradientColorsDeaths],
+                          false, false, false
                         ];
                       });
                       (_refreshIndicatorKey.currentState as dynamic)?.show();
@@ -429,7 +416,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           child: Align(
             alignment: Alignment.bottomRight,
             child: Container(
-              margin: EdgeInsets.fromLTRB(0, 0, 10, 35),
+              margin: EdgeInsets.fromLTRB(0, 0, 4, 32),
               child: FlatButton(
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,
@@ -438,8 +425,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                     chartsData[country][2 + type] = !chartsData[country][2 + type];
                   });
                 },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                child: Wrap(
                   children: <Widget>[
                     Icon(Icons.autorenew, color: Colors.white, size: 12),
                     Text(
