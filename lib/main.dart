@@ -371,12 +371,16 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          if (countryData != null) navigateToSelection(context);
-        },
-        tooltip: 'Select Country',
-        child: Icon(Icons.public),
+      floatingActionButton: AnimatedOpacity(
+        opacity: countryData.length > 1 ? 1.0 : 0.0,
+        duration: Duration(milliseconds: 500),
+        child: FloatingActionButton(
+          onPressed: () {
+            navigateToSelection(context);
+          },
+          tooltip: 'Select Country',
+          child: Icon(Icons.public),
+        ),
       ),
     );
   }
