@@ -1,5 +1,5 @@
 # Covid19Stats
-[![APK](https://img.shields.io/badge/APK-Demo-brightgreen.svg)](/repo_files/app-release.apk)<br>
+[![APK](https://img.shields.io/badge/APK-Demo-brightgreen.svg)](https://github.com/GabrielTavernini/Covid19Stats/blob/master/repo_files/app-release.apk?raw=true)<br>
 
 It's a simple app to visualize charts and statistics about the current Covid-19 emergency. <br>
 It's developed using Flutter and some plugins such as [LiquidPullToRefresh](https://github.com/aagarwal1012/Liquid-Pull-To-Refresh) and [FlCharts](https://github.com/imaNNeoFighT/fl_chart)<br>
