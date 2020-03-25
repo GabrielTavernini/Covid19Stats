@@ -125,6 +125,14 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     return n.replaceAll("&ccedil;", "ç").replaceAll("&eacute;", "é");
   }
 
+  List<String> getCategories(String s) {
+    return s.split("categories: [")[1].split("]")[0].replaceAll("\"", "").split(",");
+  }
+
+  List<int> getDataPoints(String s) {
+    return s.split("data: [")[1].split("]")[0].split(",").map(int.parse).toList();
+  }
+
   Future<void> refreshData() async {
     String localCountry = country.toString();
     var url = 'https://www.worldometers.info/coronavirus/';
@@ -154,23 +162,17 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           if (response.statusCode != 200) return;
         }
 
-        var xLabels = response.body.split("categories: [")[4].split("]")[0].replaceAll("\"", "").split(",");
-        var values = response.body.split("data: [")[4].split("]")[0].split(",").map(int.parse).toList();
+        var textToParse = response.body.split("text: 'Total Cases'")[1];
+        var xLabels = getCategories(textToParse);
+        var values = getDataPoints(textToParse);
 
-        var xLabels2 = response.body.split("categories: [")[1].split("]")[0].replaceAll("\"", "").split(",");
-        var values2 = response.body.split("data: [")[1].split("]")[0].split(",").map(int.parse).toList();
+        textToParse = response.body.split("text: '(Number of Infected People)")[1];
+        var xLabels2 = getCategories(textToParse);
+        var values2 = getDataPoints(textToParse);
 
-        var xLabels3 = response.body
-            .split("categories: [")[localCountry == "Global" ? 6 : 8]
-            .split("]")[0]
-            .replaceAll("\"", "")
-            .split(",");
-        var values3 = response.body
-            .split("data: [")[localCountry == "Global" ? 6 : 8]
-            .split("]")[0]
-            .split(",")
-            .map(int.parse)
-            .toList();
+        textToParse = response.body.split("text: 'Total Deaths'")[1];
+        var xLabels3 = getCategories(textToParse);
+        var values3 = getDataPoints(textToParse);
 
         values2.asMap().forEach((index, value) {
           values2[index] = values[index] - values3[index] - value;
