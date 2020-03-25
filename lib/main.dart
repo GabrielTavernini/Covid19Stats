@@ -1,4 +1,5 @@
 import 'package:covid19stats/selectCountry.dart';
+import 'package:covid19stats/parser.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -39,18 +40,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
   int springAnimationDuration = 750;
   AnimationController _controller;
-  List<Color> gradientColorsTotal = [
-    Colors.grey[600],
-    Colors.grey[800],
-  ];
-  List<Color> gradientColorsRecovered = [
-    Colors.lightGreen,
-    Colors.green[800],
-  ];
-  List<Color> gradientColorsDeaths = [
-    Colors.orange[800],
-    Colors.red,
-  ];
 
   @override
   initState() {
@@ -59,26 +48,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 1500),
     );
 
-    chartsData["Global"] = [
-      [
-        ["0", "1"],
-        [0, 1],
-        gradientColorsTotal
-      ],
-      [
-        ["0", "1"],
-        [0, 1],
-        gradientColorsRecovered
-      ],
-      [
-        ["0", "1"],
-        [0, 1],
-        gradientColorsDeaths
-      ],
-      false,
-      false,
-      false
-    ];
+    chartsData["Global"] = Parser.getEmptyChart();
 
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -86,70 +56,12 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     });
   }
 
-  List parseRow(List<String> row, bool hasInnerTag, String link) {
-    int offset = hasInnerTag ? 0 : -2;
-    return [
-      parseInteger(row[5 + offset]),
-      parseInteger(row[7 + offset]),
-      parseInteger(row[9 + offset]),
-      parseInteger(row[11 + offset]),
-      parseInteger(row[13 + offset]),
-      parseInteger(row[15 + offset]),
-      parseInteger(row[17 + offset]),
-      parseDouble(row[19 + offset]),
-      link
-    ];
-  }
-
-  int parseInteger(String s) {
-    try {
-      return int.parse(s.split("<")[0].replaceAll(",", "").replaceAll("+", ""));
-    } catch (e) {
-      return 0;
-    }
-  }
-
-  double parseDouble(String s) {
-    try {
-      return double.parse(s.split("<")[0].replaceAll(",", "").replaceAll("+", ""));
-    } catch (e) {
-      return 0;
-    }
-  }
-
-  String getInnerString(String source, String a, String b) {
-    return source.split(a)[1].split(b)[0];
-  }
-
-  String normalizeName(String n) {
-    return n.replaceAll("&ccedil;", "ç").replaceAll("&eacute;", "é");
-  }
-
-  List<String> getCategories(String s) {
-    return s.split("categories: [")[1].split("]")[0].replaceAll("\"", "").split(",");
-  }
-
-  List<int> getDataPoints(String s) {
-    return s.split("data: [")[1].split("]")[0].split(",").map(int.parse).toList();
-  }
-
   Future<void> refreshData() async {
     String localCountry = country.toString();
     var url = 'https://www.worldometers.info/coronavirus/';
     var response = await http.get(url);
     if (response.statusCode == 200) {
-      var row = response.body.split("<tr class=\"total_row\">")[1].split("</tr>")[0].split(">");
-
-      countryData["Global"] = parseRow(row, true, "");
-
-      var tbody = getInnerString(response.body, "<tbody>", "</tbody>");
-      var rows = tbody.split("<tr style=\"\">");
-      rows.skip(1).forEach((rawRow) {
-        row = rawRow.split(">");
-        bool hasInnerTag = rawRow.contains("</a>") || rawRow.contains("</span>");
-        countryData[normalizeName(row[hasInnerTag ? 2 : 1].split("<")[0])] =
-            parseRow(row, hasInnerTag, rawRow.contains("</a>") ? getInnerString(rawRow, "href=\"", "\"") : null);
-      });
+      countryData = Parser.getCountryData(response.body);
 
       setState(() {
         _controller.forward(from: 0.0);
@@ -162,27 +74,11 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           if (response.statusCode != 200) return;
         }
 
-        var textToParse = response.body.split("text: 'Total Cases'")[1];
-        var xLabels = getCategories(textToParse);
-        var values = getDataPoints(textToParse);
-
-        textToParse = response.body.split("text: '(Number of Infected People)")[1];
-        var xLabels2 = getCategories(textToParse);
-        var values2 = getDataPoints(textToParse);
-
-        textToParse = response.body.split("text: 'Total Deaths'")[1];
-        var xLabels3 = getCategories(textToParse);
-        var values3 = getDataPoints(textToParse);
-
-        values2.asMap().forEach((index, value) {
-          values2[index] = values[index] - values3[index] - value;
-        });
-
+        var data = Parser.getChartsData(response.body);
         setState(() {
-          //springAnimationDuration = 1000;
-          chartsData[localCountry][0] = [xLabels, values, gradientColorsTotal];
-          chartsData[localCountry][1] = [xLabels2, values2, gradientColorsRecovered];
-          chartsData[localCountry][2] = [xLabels3, values3, gradientColorsDeaths];
+          chartsData[localCountry][0] = data[0];
+          chartsData[localCountry][1] = data[1];
+          chartsData[localCountry][2] = data[2];
         });
       }
     }
@@ -358,13 +254,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                         )),
                     onPressed: () {
                       setState(() {
-                        //springAnimationDuration = 500;
-                        chartsData[country] = [
-                          [["0", "1"], [0, 1], gradientColorsTotal],
-                          [["0", "1"], [0, 1], gradientColorsRecovered],
-                          [["0", "1"], [0, 1], gradientColorsDeaths],
-                          false, false, false
-                        ];
+                        chartsData[country] = Parser.getEmptyChart();
                       });
                       (_refreshIndicatorKey.currentState as dynamic)?.show();
                     },
