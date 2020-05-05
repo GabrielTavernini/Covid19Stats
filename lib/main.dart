@@ -443,7 +443,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     double maxValue = 0;
     List<FlSpot> spots = [];
     for (int i = values.length - 1; i > 0; i--) {
-      double val = (values[i] - values[i - 1]).toDouble();
+      double val = max((values[i] - values[i - 1]).toDouble(), 0.0);
       spots.add(FlSpot(i.toDouble(), val));
       maxValue = val > maxValue ? val : maxValue;
     }
