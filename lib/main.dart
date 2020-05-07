@@ -443,7 +443,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           colors: gradientColors,
           barWidth: 4,
           isStrokeCapRound: true,
-          dotData: const FlDotData(
+          dotData: FlDotData(
             show: false,
           ),
           belowBarData: BarAreaData(
@@ -542,7 +542,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           colors: gradientColors,
           barWidth: 4,
           isStrokeCapRound: true,
-          dotData: const FlDotData(
+          dotData: FlDotData(
             show: false,
           ),
           belowBarData: BarAreaData(
