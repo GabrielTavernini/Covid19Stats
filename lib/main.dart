@@ -296,6 +296,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   }
 
   Widget createGraph(int type) {
+    var dataAvailable = chartsData[country][type - 1].length == 4 && !chartsData[country][type - 1][3];
     var daily = chartsData[country][2 + type];
     var lineChartData = daily ? dailyData(chartsData[country][type - 1]) : totalData(chartsData[country][type - 1]);
     return Stack(
@@ -306,6 +307,24 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             child: Padding(
                 padding: const EdgeInsets.only(right: 18.0, left: 12.0, top: 24, bottom: 12),
                 child: new LineChart(lineChartData, swapAnimationDuration: Duration(seconds: 1))),
+          ),
+        ),
+        Positioned.fill(
+          child: Visibility(
+            visible: dataAvailable,
+            child: Align (
+              alignment: Alignment.center,
+              child: Container(
+                margin: EdgeInsets.fromLTRB(40, 0, 0, 16),
+                child: Text(
+                  "Data Not Available",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
         Positioned.fill(

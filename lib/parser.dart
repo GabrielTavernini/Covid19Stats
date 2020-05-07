@@ -83,21 +83,30 @@ class Parser {
     var xLabels = getCategories(textToParse);
     var values = getDataPoints(textToParse);
 
-    textToParse = body.split("text: '(Number of Infected People)")[1];
-    var xLabels2 = getCategories(textToParse);
-    var values2 = getDataPoints(textToParse);
+    var xLabels2, values2;
+    var recoveredDataAvailable = false;
+    try {
+      textToParse = body.split("text: '(Number of Infected People)")[1];
+      xLabels2 = getCategories(textToParse);
+      values2 = getDataPoints(textToParse);
+      recoveredDataAvailable = true;
+    } on RangeError {
+      xLabels2 = ["0", "1"];
+      values2 = [0, 1];
+    }
 
     textToParse = body.split("text: 'Total Deaths'")[1];
     var xLabels3 = getCategories(textToParse);
     var values3 = getDataPoints(textToParse);
 
-    values2.asMap().forEach((index, value) {
-      values2[index] = values[index] - values3[index] - value;
-    });
+    if(recoveredDataAvailable)
+      values2.asMap().forEach((index, value) {
+        values2[index] = values[index] - values3[index] - value;
+      });
 
     return [
       [xLabels, values, gradientColorsTotal],
-      [xLabels2, values2, gradientColorsRecovered],
+      [xLabels2, values2, gradientColorsRecovered, recoveredDataAvailable],
       [xLabels3, values3, gradientColorsDeaths],
     ];
   }
