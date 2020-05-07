@@ -419,7 +419,9 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           ),
           getTitles: (value) {
             var label;
-            if (value >= 1000)
+            if(value >= 1000000)
+              label = (value.toInt() / 1000000).toStringAsFixed(2) + "M";
+            else if (value >= 1000)
               label = (value.toInt() ~/ 1000).toString() + "K";
             else
               label = value.toInt().toString();
