@@ -12,6 +12,9 @@ class Parser {
       parseInteger(row[15 + offset]),
       parseInteger(row[17 + offset]),
       parseDouble(row[19 + offset]),
+      parseDouble( row[21 + offset]),
+      parseInteger(row[23 + offset]),
+      parseInteger(row[25 + offset]),
       link
     ];
   }
