@@ -12,6 +12,9 @@ class Parser {
       parseInteger(row[15 + offset]),
       parseInteger(row[17 + offset]),
       parseDouble(row[19 + offset]),
+      parseDouble( row[21 + offset]),
+      parseInteger(row[23 + offset]),
+      parseInteger(row[25 + offset]),
       link
     ];
   }
@@ -66,8 +69,8 @@ class Parser {
   }
 
   static List<Color> gradientColorsTotal = [
-    Colors.grey[600],
-    Colors.grey[800],
+    Colors.yellow[600],
+    Colors.yellow[800],
   ];
   static List<Color> gradientColorsRecovered = [
     Colors.lightGreen,
