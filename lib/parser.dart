@@ -69,8 +69,8 @@ class Parser {
   }
 
   static List<Color> gradientColorsTotal = [
-    Colors.yellow[600],
-    Colors.yellow[800],
+    Colors.grey[600],
+    Colors.grey[800],
   ];
   static List<Color> gradientColorsRecovered = [
     Colors.lightGreen,

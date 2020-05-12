@@ -318,7 +318,6 @@ class _SelectionScreenState extends State<SelectionScreen> {
         var index = widget.countries.indexOf(widget.selectedCountry);
         double height = MediaQuery.of(context).size.height - (4 * 56);
         double scrollTo = (56 * (index).toDouble() - height);
-        dev.log(scrollTo.toString());
         if (scrollTo > 0)
           scrollController.animateTo(scrollTo,
               duration: Duration(milliseconds: (678 * (1 + (index / 30))).toInt()), curve: Curves.ease);
