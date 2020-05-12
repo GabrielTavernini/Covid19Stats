@@ -1,22 +1,23 @@
-import 'package:flutter/material.dart';
+import 'package:covid19stats/chartsData.dart';
+import 'package:covid19stats/countryData.dart';
 
 class Parser {
-  static List parseRow(List<String> row, bool hasInnerTag, String link) {
+  static CountryData parseRow(List<String> row, bool hasInnerTag, String link) {
     int offset = hasInnerTag ? 0 : -2;
-    return [
-      parseInteger(row[5 + offset]),
-      parseInteger(row[7 + offset]),
-      parseInteger(row[9 + offset]),
-      parseInteger(row[11 + offset]),
-      parseInteger(row[13 + offset]),
-      parseInteger(row[15 + offset]),
-      parseInteger(row[17 + offset]),
-      parseDouble(row[19 + offset]),
-      parseDouble( row[21 + offset]),
-      parseInteger(row[23 + offset]),
-      parseInteger(row[25 + offset]),
-      link
-    ];
+    CountryData cD = new CountryData();
+    cD.totalCases = parseInteger(row[5 + offset]);
+    cD.newCases = parseInteger(row[7 + offset]);
+    cD.totalDeaths = parseInteger(row[9 + offset]);
+    cD.newDeaths = parseInteger(row[11 + offset]);
+    cD.totalRecovered = parseInteger(row[13 + offset]);
+    cD.activeCases = parseInteger(row[15 + offset]);
+    cD.criticalCases = parseInteger(row[17 + offset]);
+    cD.casesPerMln = parseDouble(row[19 + offset]);
+    cD.deathsPerMln = parseDouble(row[21 + offset]);
+    cD.totalTests = parseInteger(row[23 + offset]);
+    cD.testsPerMln = parseInteger(row[25 + offset]);
+    cD.link = link;
+    return cD;
   }
 
   static int parseInteger(String s) {
@@ -43,8 +44,8 @@ class Parser {
     return n.replaceAll("&ccedil;", "ç").replaceAll("&eacute;", "é").split("<")[0];
   }
 
-  static Map<String, List> getCountryData(String body) {
-    Map<String, List> countryData = {};
+  static Map<String, CountryData> getCountryData(String body) {
+    Map<String, CountryData> countryData = {};
     var row = body.split("<tr class=\"total_row\">")[1].split("</tr>")[0].split(">");
 
     countryData["Global"] = parseRow(row, true, "");
@@ -68,20 +69,7 @@ class Parser {
     return s.split("data: [")[1].split("]")[0].split(",").map(int.parse).toList();
   }
 
-  static List<Color> gradientColorsTotal = [
-    Colors.grey[600],
-    Colors.grey[800],
-  ];
-  static List<Color> gradientColorsRecovered = [
-    Colors.lightGreen,
-    Colors.green[800],
-  ];
-  static List<Color> gradientColorsDeaths = [
-    Colors.orange[800],
-    Colors.red,
-  ];
-
-  static List getChartsData(String body) {
+  static ChartsData getChartsData(String body) {
     var textToParse = body.split("text: 'Total Cases'")[1];
     var xLabels = getCategories(textToParse);
     var values = getDataPoints(textToParse);
@@ -107,33 +95,11 @@ class Parser {
         values2[index] = values[index] - values3[index] - value;
       });
 
-    return [
-      [xLabels, values, gradientColorsTotal],
-      [xLabels2, values2, gradientColorsRecovered, recoveredDataAvailable],
-      [xLabels3, values3, gradientColorsDeaths],
-    ];
-  }
+    ChartsData cD = new ChartsData();
+    cD.total = new ChartData(xLabels, values, gradientColorsTotal);
+    cD.recovered = new ChartData(xLabels2, values2, gradientColorsRecovered, available: recoveredDataAvailable);
+    cD.deaths = new ChartData(xLabels3, values3, gradientColorsDeaths);
 
-  static List getEmptyChart() {
-    return [
-      [
-        ["0", "1"],
-        [0, 1],
-        gradientColorsTotal
-      ],
-      [
-        ["0", "1"],
-        [0, 1],
-        gradientColorsRecovered
-      ],
-      [
-        ["0", "1"],
-        [0, 1],
-        gradientColorsDeaths
-      ],
-      false,
-      false,
-      false
-    ];
+    return cD;
   }
 }

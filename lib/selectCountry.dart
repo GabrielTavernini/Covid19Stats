@@ -16,26 +16,6 @@ class _SelectionScreenState extends State<SelectionScreen> {
   final scrollController = ScrollController();
   final GlobalKey key = new GlobalKey();
 
-  /*
-      "Italy" : "🇮🇹",
-    "China" : "🇨🇳",
-    "Spain" : "🇪🇸",
-    "USA" : "🇺🇸",
-    "Germany" : "🇩🇪",
-    "Iran" : "🇮🇷",
-    "France" : "🇫🇷",
-    "S. Korea" : "🇰🇷",
-    "Switzerland" : "🇨🇭",
-    "UK" : "🇬🇧",
-    "Netherlands" : "🇳🇱",
-    "Belgium" : "🇧🇪",
-    "Austria" : "🇦🇹",
-    "Norway" : "🇳🇴",
-    "Sweden" : "🇸🇪",
-    "Portugal" : "🇵🇹",
-    "Denmark" : "🇩🇰",
-    "Australia" : "🇦🇺",
-   */
   var countryFlags = {
     "Diamond Princess": "🛳",
     "Ascension Island": "🇦🇨",
