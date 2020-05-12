@@ -33,7 +33,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   final GlobalKey _refreshIndicatorKey = GlobalKey();
   var countryData = {
-    "Global": [0, 0, 0, 0, 0, 0, 0, 0.0, true]
+    "Global": [0, 0, 0, 0, 0, 0, 0, 0.0, 0.0, 0, 0, true]
   };
   var chartsData = {};
   String country = "Global";
@@ -69,7 +69,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
       if (chartsData[localCountry] != null) {
         if (localCountry != "Global") {
-          url += countryData[localCountry][8];
+          url += countryData[localCountry][11];
           response = await http.get(url);
           if (response.statusCode != 200) return;
         }
@@ -107,6 +107,41 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           shrinkWrap: true,
           children: <Widget>[
             SizedBox(height: 20),
+            if(countryData[country][9] != 0) ...[
+              Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text(
+                  'Total Tests:',
+                  style: TextStyle(color: Colors.blue[200], fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+                Counter(
+                  textStyle: TextStyle(color: Colors.blue[200], fontSize: 22, fontWeight: FontWeight.bold),
+                  animation: new StepTween(
+                    begin: 0, //prevTotalCases,
+                    end: countryData[country][9],
+                  ).animate(_controller),
+                ),
+              ],
+            ),
+              Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text(
+                  'Tests per Mln:',
+                  style: TextStyle(color: Colors.blue[200], fontSize: 18),
+                ),
+                Counter(
+                  textStyle: TextStyle(color: Colors.blue[200], fontSize: 18),
+                  animation: new StepTween(
+                    begin: 0, //prevTotalCases,
+                    end: countryData[country][10],
+                  ).animate(_controller),
+                ),
+              ],
+            ),
+              SizedBox(height: 30)
+            ],
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -211,7 +246,23 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Text(
-                  'Serious Cases:',
+                  'Deaths per Mln:',
+                  style: TextStyle(color: Colors.red, fontSize: 18),
+                ),
+                Counter(
+                  textStyle: TextStyle(color: Colors.red, fontSize: 18),
+                  animation: new StepTween(
+                    begin: 0, //prevTotalCases,
+                    end: (countryData[country][8] as double).toInt(),
+                  ).animate(_controller),
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text(
+                  'Critical Cases:',
                   style: TextStyle(color: Colors.red, fontSize: 18),
                 ),
                 Counter(
