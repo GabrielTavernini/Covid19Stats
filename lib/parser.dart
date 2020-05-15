@@ -5,17 +5,17 @@ class Parser {
   static CountryData parseRow(List<String> row, bool hasInnerTag, String link) {
     int offset = hasInnerTag ? 0 : -2;
     CountryData cD = new CountryData();
-    cD.totalCases = parseInteger(row[5 + offset]);
-    cD.newCases = parseInteger(row[7 + offset]);
-    cD.totalDeaths = parseInteger(row[9 + offset]);
-    cD.newDeaths = parseInteger(row[11 + offset]);
-    cD.totalRecovered = parseInteger(row[13 + offset]);
-    cD.activeCases = parseInteger(row[15 + offset]);
-    cD.criticalCases = parseInteger(row[17 + offset]);
-    cD.casesPerMln = parseDouble(row[19 + offset]);
-    cD.deathsPerMln = parseDouble(row[21 + offset]);
-    cD.totalTests = parseInteger(row[23 + offset]);
-    cD.testsPerMln = parseInteger(row[25 + offset]);
+    cD.totalCases = parseInteger(row[7 + offset]);
+    cD.newCases = parseInteger(row[9 + offset]);
+    cD.totalDeaths = parseInteger(row[11 + offset]);
+    cD.newDeaths = parseInteger(row[13 + offset]);
+    cD.totalRecovered = parseInteger(row[15 + offset]);
+    cD.activeCases = parseInteger(row[17 + offset]);
+    cD.criticalCases = parseInteger(row[19 + offset]);
+    cD.casesPerMln = parseDouble(row[21 + offset]);
+    cD.deathsPerMln = parseDouble(row[23 + offset]);
+    cD.totalTests = parseInteger(row[25 + offset]);
+    cD.testsPerMln = parseInteger(row[27 + offset]);
     cD.link = link;
     return cD;
   }
@@ -55,7 +55,7 @@ class Parser {
     rows.skip(1).forEach((rawRow) {
       row = rawRow.split(">");
       bool hasInnerTag = rawRow.contains("</a>") || rawRow.contains("</span>");
-      countryData[normalizeName(row[hasInnerTag ? 2 : 1])] =
+      countryData[normalizeName(row[hasInnerTag ? 4: 3])] =
           parseRow(row, hasInnerTag, rawRow.contains("</a>") ? getInnerString(rawRow, "href=\"", "\"") : null);
     });
     return countryData;
