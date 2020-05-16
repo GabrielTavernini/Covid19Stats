@@ -1,0 +1,2 @@
+It's a simple app to visualize charts and statistics about the current Covid-19 emergency. 
+All the data visualized in the app is taken from the website worldometers.info/coronavirus/ 📈

@@ -1,0 +1,1 @@
+A simple mobile app to view Covid19 statistics 🦠

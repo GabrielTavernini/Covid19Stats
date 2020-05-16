@@ -1,0 +1,6 @@
+🐛 FIX
+- The parser had to be modified to work with the new worldometers' layout (ce8ff2b)
+- Refresh indicator overlays list view - upgraded liquid_pull_to_refresh to v2.0.0
+
+📦 ADDED
+- Live counters for Tests, Tests/Mln and Deaths/Mln have also been added (d4a17d9)
