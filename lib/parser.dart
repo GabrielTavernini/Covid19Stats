@@ -14,8 +14,8 @@ class Parser {
     cD.criticalCases = parseInteger(row[19 + offset]);
     cD.casesPerMln = parseDouble(row[21 + offset]);
     cD.deathsPerMln = parseDouble(row[23 + offset]);
-    cD.totalTests = parseInteger(row[27 + offset]);
-    cD.testsPerMln = parseInteger(row[25 + offset]);
+    cD.totalTests = parseInteger(row[25 + offset]);
+    cD.testsPerMln = parseInteger(row[27 + offset]);
     cD.link = link;
     return cD;
   }
