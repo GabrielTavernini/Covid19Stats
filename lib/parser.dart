@@ -10,12 +10,12 @@ class Parser {
     cD.totalDeaths = parseInteger(row[11 + offset]);
     cD.newDeaths = parseInteger(row[13 + offset]);
     cD.totalRecovered = parseInteger(row[15 + offset]);
-    cD.activeCases = parseInteger(row[17 + offset]);
-    cD.criticalCases = parseInteger(row[19 + offset]);
-    cD.casesPerMln = parseDouble(row[21 + offset]);
-    cD.deathsPerMln = parseDouble(row[23 + offset]);
-    cD.totalTests = parseInteger(row[25 + offset]);
-    cD.testsPerMln = parseInteger(row[27 + offset]);
+    cD.activeCases = parseInteger(row[19 + offset]);
+    cD.criticalCases = parseInteger(row[21 + offset]);
+    cD.casesPerMln = parseDouble(row[23 + offset]);
+    cD.deathsPerMln = parseDouble(row[25 + offset]);
+    cD.totalTests = parseInteger(row[27 + offset]);
+    cD.testsPerMln = parseInteger(row[29 + offset]);
     cD.link = link;
     return cD;
   }
