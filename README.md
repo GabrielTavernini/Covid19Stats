@@ -9,4 +9,6 @@ All the data visualized in the app is taken from the website [Worldometers](http
 
 |First Page|Select Page|Country without Charts|Country with Charts|
 |:------------:|:------------:|:-------------:|:-------------:|
-![First Screen](/assets/Screenshots/iOSVertical/iPhone%20Xs%201.png)|![Select Page](/assets/Screenshots/iOSVertical/iPhone%20Xs%202.png)|![Country without Charts](/assets/Screenshots/iOSVertical/iPhone%20Xs%203.png)|![Country with Charts](/assets/Screenshots/iOSVertical/iPhone%20Xs%204.png)|
+![First Screen](/assets/Screenshots/iOS/iPhone%20Xs%201.png)|![Select Page](/assets/Screenshots/iOS/iPhone%20Xs%202.png)|![Country without Charts](/assets/Screenshots/iOS/iPhone%20Xs%203.png)|![Country with Charts](/assets/Screenshots/iOS/iPhone%20Xs%204.png)|
+||Range Picker Dialog|Date Picker|
+||![Range Picker Dialog](/assets/Screenshots/iOS/iPhone%20Xs%205.png)|![Date Picker](/assets/Screenshots/iOS/iPhone%20Xs%206.png)|
