@@ -1,12 +1,16 @@
+import 'dart:io';
 import 'package:covid19stats/chartsData.dart';
 import 'package:covid19stats/countryData.dart';
 import 'package:covid19stats/selectCountry.dart';
 import 'package:covid19stats/parser.dart';
+import 'package:intl/intl.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:math';
+
+import 'dateRangeDialog.dart';
 
 void main() => runApp(MyApp());
 
@@ -32,7 +36,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
+  List<String> months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   final GlobalKey _refreshIndicatorKey = GlobalKey();
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   Map<String, CountryData> countryData = {
     "Global": new CountryData()
   };
@@ -41,6 +47,14 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
   int springAnimationDuration = 750;
   AnimationController _controller;
+
+  ThemeData datePickerTheme = ThemeData(
+    brightness: Brightness.dark,
+    accentColor: Colors.red,
+    dialogBackgroundColor: Color(0xff232d37),
+    colorScheme: ColorScheme.dark(primary: Colors.red, surface: Colors.red)
+  );
+  DateTimeRange selectedDateRange;
 
   @override
   initState() {
@@ -92,9 +106,35 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: Color(0xff232d37),
       appBar: AppBar(
         title: Text("Covid19 Stats - " + country),
+        leading: Theme(
+          data: datePickerTheme,
+          child: Builder(
+            builder: (context) => IconButton(icon: Icon(Icons.calendar_today), color: Colors.white, onPressed: () async {
+              showDateDialog(context);
+            }),
+          ),
+        ),
+        actions: <Widget>[
+          IconButton(icon: Icon(Icons.settings), color: Colors.white, onPressed: (){
+            _scaffoldKey.currentState.showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.info_outline),
+                    SizedBox(width: 15),
+                    Text("Settings coming in the next updates!")
+                  ],
+                ),
+                elevation: 6.0,
+                behavior: SnackBarBehavior.floating,
+              )
+            );
+          },),
+        ],
       ),
       body: LiquidPullToRefresh(
         springAnimationDurationInMilliseconds: springAnimationDuration,
@@ -345,8 +385,48 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     }
   }
 
+  Future<void> showDateDialog(context) async {
+    if(chartsData[country] != null && chartsData[country].total.available) {
+      int firstDay = int.parse(chartsData[country].total.labels.first.split(" ")[1]);
+      int firstMonth = months.indexOf(chartsData[country].total.labels.first.split(" ")[0]) + 1;
+      DateTime firstDate = new DateTime(2020, firstMonth, firstDay);
+
+      int lastDay = int.parse(chartsData[country].total.labels.last.split(" ")[1]);
+      int lastMonth = months.indexOf(chartsData[country].total.labels.last.split(" ")[0]) + 1;
+      DateTime lastDate = new DateTime(2020, lastMonth, lastDay);
+
+      selectedDateRange = await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return new DateRangeDialog(
+                DateTimeRange(start: firstDate, end: lastDate),
+                selectedDateRange ?? DateTimeRange(start: firstDate, end: lastDate)
+            );
+          }
+      ) ?? selectedDateRange;
+      setState(() {});
+    } else {
+      _scaffoldKey.currentState.showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.info_outline),
+                SizedBox(width: 15),
+                Text("Charts data is not yet available!")
+              ],
+            ),
+            elevation: 6.0,
+            behavior: SnackBarBehavior.floating,
+          )
+      );
+    }
+  }
+
   Widget createGraph(ChartData chartData) {
+    if(selectedDateRange != null && selectedDateRange.start.compareTo(selectedDateRange.end) == 1)
+      chartData = new ChartData.empty(chartData.gradientColors);
     var lineChartData = chartData.daily ? dailyData(chartData) : totalData(chartData);
+
     return Stack(
       children: <Widget>[
         AspectRatio(
@@ -409,11 +489,19 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   }
 
   LineChartData totalData(ChartData data) {
-    //xLabels, List<int> values, List<Color> gradientColors) {
     var xLabels = data.labels;
     var values = data.values;
-    double vInterval = values.reduce(max).toDouble() / 4;
-    double hInterval = xLabels.length.toDouble() / 4;
+    int start = 0;
+    int end = values.length;
+    if(selectedDateRange != null && data.available) {
+      DateFormat dateFormat = DateFormat('MMM dd');
+      start = data.labels.indexOf(dateFormat.format(selectedDateRange.start));
+      end = data.labels.indexOf(dateFormat.format(selectedDateRange.end));
+    }
+
+    double maxValue = values.sublist(start, end).reduce(max).toDouble();
+    double vInterval = maxValue / 4;
+    double hInterval = xLabels.sublist(start, end).length.toDouble() / 4;
 
     List<FlSpot> spots = [];
     for (int i = 0; i < values.length; i++) {
@@ -431,17 +519,17 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     );
 
     return LineChartData(
+      clipData: FlClipData.all(),
       gridData: FlGridData(
         show: true,
         horizontalInterval: vInterval,
-        verticalInterval: 5.0,
+        verticalInterval: hInterval,
         drawVerticalLine: true,
         getDrawingHorizontalLine: (value) {
           return gridLine;
         },
         getDrawingVerticalLine: (value) {
-          if (value % hInterval < 5) return gridLine;
-          return nullLine;
+          return gridLine;
         },
       ),
       titlesData: FlTitlesData(
@@ -466,7 +554,11 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           ),
           getTitles: (value) {
             var label;
-            if(value >= 1000000)
+            if(value >= 100000000)
+              label = (value.toInt() / 1000000).toStringAsFixed(0) + "M";
+            else if(value >= 10000000)
+              label = (value.toInt() / 1000000).toStringAsFixed(1) + "M";
+            else if(value >= 1000000)
               label = (value.toInt() / 1000000).toStringAsFixed(2) + "M";
             else if (value >= 1000)
               label = (value.toInt() ~/ 1000).toString() + "K";
@@ -479,10 +571,10 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         ),
       ),
       borderData: FlBorderData(show: true, border: Border.all(color: const Color(0xff37434d), width: 1)),
-      minX: 0,
-      maxX: (values.length - 1).toDouble(),
+      minX: start.toDouble(),
+      maxX: (end-1).toDouble(),
       minY: 0,
-      maxY: values.reduce(max).toDouble(),
+      maxY: maxValue,
       lineBarsData: [
         LineChartBarData(
           spots: spots,
@@ -508,18 +600,27 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     var values = data.values;
     var gradientColors = data.gradientColors;
 
+    int start = 0;
+    int end = values.length;
+    if(selectedDateRange != null && data.available) {
+      DateFormat dateFormat = DateFormat('MMM dd');
+      start = data.labels.indexOf(dateFormat.format(selectedDateRange.start));
+      end = data.labels.indexOf(dateFormat.format(selectedDateRange.end));
+    }
+
     double maxValue = 0;
     List<FlSpot> spots = [];
     for (int i = values.length - 1; i > 0; i--) {
       double val = max((values[i] - values[i - 1]).toDouble(), 0.0);
       spots.add(FlSpot(i.toDouble(), val));
-      maxValue = val > maxValue ? val : maxValue;
+      maxValue = val > maxValue && i >= start && i < end ? val : maxValue;
     }
+    maxValue = maxValue*0.05 + maxValue;
     spots.add(FlSpot(0.0, values[0].toDouble()));
     spots = new List.from(spots.reversed);
 
     double vInterval = maxValue / 4;
-    double hInterval = xLabels.length.toDouble() / 4;
+    double hInterval = xLabels.sublist(start, end).length.toDouble() / 4;
 
     FlLine gridLine = FlLine(
       color: Color(0xff37434d),
@@ -532,17 +633,17 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     );
 
     return LineChartData(
+      clipData: FlClipData.all(),
       gridData: FlGridData(
         show: true,
         horizontalInterval: vInterval,
-        verticalInterval: 5.0,
+        verticalInterval: hInterval,
         drawVerticalLine: true,
         getDrawingHorizontalLine: (value) {
           return gridLine;
         },
         getDrawingVerticalLine: (value) {
-          if (value % hInterval < 5) return gridLine;
-          return nullLine;
+          return gridLine;
         },
       ),
       titlesData: FlTitlesData(
@@ -578,8 +679,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         ),
       ),
       borderData: FlBorderData(show: true, border: Border.all(color: const Color(0xff37434d), width: 1)),
-      minX: 0,
-      maxX: (values.length - 1).toDouble(),
+      minX: start.toDouble(),
+      maxX: (end - 1).toDouble(),
       minY: 0,
       maxY: maxValue,
       lineBarsData: [
@@ -610,7 +711,7 @@ class Counter extends AnimatedWidget {
   @override
   build(BuildContext context) {
     return new Text(
-      animation.value.toString(),
+      new NumberFormat.decimalPattern(Platform.localeName).format(animation.value),
       style: textStyle,
     );
   }

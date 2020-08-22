@@ -21,7 +21,7 @@ class ChartsData {
 
 class ChartData {
   bool daily = false;
-  bool available = true;
+  bool available = false;
   List<String> labels = ["0", "1"];
   List<int> values = [0, 1];
   List<Color> gradientColors;
