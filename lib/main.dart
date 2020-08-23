@@ -492,16 +492,16 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     var xLabels = data.labels;
     var values = data.values;
     int start = 0;
-    int end = values.length;
+    int end = values.length - 1;
     if(selectedDateRange != null && data.available) {
       DateFormat dateFormat = DateFormat('MMM dd');
       start = data.labels.indexOf(dateFormat.format(selectedDateRange.start));
       end = data.labels.indexOf(dateFormat.format(selectedDateRange.end));
     }
 
-    double maxValue = values.sublist(start, end).reduce(max).toDouble();
+    double maxValue = values.sublist(start, end + 1).reduce(max).toDouble();
     double vInterval = maxValue / 4;
-    double hInterval = xLabels.sublist(start, end).length.toDouble() / 4;
+    double hInterval = xLabels.sublist(start, end + 1).length.toDouble() / 4;
 
     List<FlSpot> spots = [];
     for (int i = 0; i < values.length; i++) {
@@ -572,7 +572,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       ),
       borderData: FlBorderData(show: true, border: Border.all(color: const Color(0xff37434d), width: 1)),
       minX: start.toDouble(),
-      maxX: (end-1).toDouble(),
+      maxX: end.toDouble(),
       minY: 0,
       maxY: maxValue,
       lineBarsData: [
@@ -601,7 +601,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     var gradientColors = data.gradientColors;
 
     int start = 0;
-    int end = values.length;
+    int end = values.length - 1;
     if(selectedDateRange != null && data.available) {
       DateFormat dateFormat = DateFormat('MMM dd');
       start = data.labels.indexOf(dateFormat.format(selectedDateRange.start));
@@ -620,7 +620,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     spots = new List.from(spots.reversed);
 
     double vInterval = maxValue / 4;
-    double hInterval = xLabels.sublist(start, end).length.toDouble() / 4;
+    double hInterval = xLabels.sublist(start, end + 1).length.toDouble() / 4;
 
     FlLine gridLine = FlLine(
       color: Color(0xff37434d),
@@ -680,7 +680,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       ),
       borderData: FlBorderData(show: true, border: Border.all(color: const Color(0xff37434d), width: 1)),
       minX: start.toDouble(),
-      maxX: (end - 1).toDouble(),
+      maxX: end.toDouble(),
       minY: 0,
       maxY: maxValue,
       lineBarsData: [
