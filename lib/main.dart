@@ -519,7 +519,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     );
 
     return LineChartData(
-      clipData: FlClipData.all(),
+      clipData: FlClipData.horizontal(),
       gridData: FlGridData(
         show: true,
         horizontalInterval: vInterval,
@@ -633,7 +633,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     );
 
     return LineChartData(
-      clipData: FlClipData.all(),
+      clipData: FlClipData.horizontal(),
       gridData: FlGridData(
         show: true,
         horizontalInterval: vInterval,
