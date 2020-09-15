@@ -11,7 +11,7 @@ description: A mobile app developed with Flutter to view Covid19 statistics.
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 2.0.0+8
+version: 2.0.1+9
 
 environment:
   sdk: ">=2.2.2 <3.0.0"
@@ -19,7 +19,7 @@ environment:
 dependencies:
   intl: ^0.16.1
   http: ^0.12.2
-  fl_chart: ^0.11.0
+  fl_chart: ^0.11.1
   liquid_pull_to_refresh: ^2.0.0
   flutter:
     sdk: flutter
