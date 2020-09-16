@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:covid19stats/chartsData.dart';
+import 'package:covid19stats/counter.dart';
 import 'package:covid19stats/countryData.dart';
 import 'package:covid19stats/selectCountry.dart';
 import 'package:covid19stats/parser.dart';
@@ -733,20 +734,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           ),
         ),
       ],
-    );
-  }
-}
-
-class Counter extends AnimatedWidget {
-  Counter({Key key, this.animation, this.textStyle}) : super(key: key, listenable: animation);
-  final Animation<int> animation;
-  final TextStyle textStyle;
-
-  @override
-  build(BuildContext context) {
-    return new Text(
-      new NumberFormat.decimalPattern(Platform.localeName).format(animation.value),
-      style: textStyle,
     );
   }
 }
