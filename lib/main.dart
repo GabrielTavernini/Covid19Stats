@@ -519,6 +519,23 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     );
 
     return LineChartData(
+      lineTouchData: LineTouchData(
+        touchTooltipData: LineTouchTooltipData(
+          getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
+            return touchedBarSpots.map((barSpot) {
+              if (barSpot.x < start || barSpot.x > end) return null;
+              return LineTooltipItem(
+                barSpot.x.toString(),
+                TextStyle(
+                  color: data.gradientColors[1],
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14
+                )
+              );
+            }).toList();
+          },
+        ),
+      ),
       clipData: FlClipData.horizontal(),
       gridData: FlGridData(
         show: true,
@@ -633,6 +650,23 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     );
 
     return LineChartData(
+      lineTouchData: LineTouchData(
+        touchTooltipData: LineTouchTooltipData(
+          getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
+            return touchedBarSpots.map((barSpot) {
+              if (barSpot.x < start || barSpot.x > end) return null;
+              return LineTooltipItem(
+                barSpot.x.toString(),
+                TextStyle(
+                  color: data.gradientColors[1],
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14
+                )
+              );
+            }).toList();
+          },
+        ),
+      ),
       clipData: FlClipData.horizontal(),
       gridData: FlGridData(
         show: true,

@@ -96,7 +96,7 @@ class _DateRangeDialogState extends State<DateRangeDialog> {
                   initialDate: selectedRange.start
                 );
 
-                if(newDate != selectedRange.start) {
+                if(newDate != null && newDate != selectedRange.start) {
                   fromController.text = dateFormat.format(newDate);
                   selectedRange = DateTimeRange(
                       start: newDate,
@@ -127,7 +127,7 @@ class _DateRangeDialogState extends State<DateRangeDialog> {
                   initialDate: selectedRange.end
                 );
 
-                if(newDate != selectedRange.end) {
+                if(newDate != null && newDate != selectedRange.end) {
                   toController.text = dateFormat.format(newDate);
                   selectedRange = DateTimeRange(
                     start: selectedRange.start,
