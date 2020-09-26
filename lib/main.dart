@@ -526,7 +526,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             return touchedBarSpots.map((barSpot) {
               if (barSpot.x < start || barSpot.x > end) return null;
               return LineTooltipItem(
-                barSpot.x.toString(),
+                new NumberFormat.decimalPattern(Platform.localeName).format(barSpot.y.toInt()),
                 TextStyle(
                   color: data.gradientColors[1],
                   fontWeight: FontWeight.bold,
@@ -657,7 +657,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             return touchedBarSpots.map((barSpot) {
               if (barSpot.x < start || barSpot.x > end) return null;
               return LineTooltipItem(
-                barSpot.x.toString(),
+                new NumberFormat.decimalPattern(Platform.localeName).format(barSpot.y.toInt()),
                 TextStyle(
                   color: data.gradientColors[1],
                   fontWeight: FontWeight.bold,
