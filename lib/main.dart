@@ -110,7 +110,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       key: _scaffoldKey,
       backgroundColor: Color(0xff232d37),
       appBar: AppBar(
-        title: Text("Covid19 Stats - " + country),
+        title: Text(country), //Text("Covid19 Stats - " + country),
         leading: Theme(
           data: datePickerTheme,
           child: Builder(
@@ -424,7 +424,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   }
 
   Widget createGraph(ChartData chartData) {
-    if(selectedDateRange != null && selectedDateRange.start.compareTo(selectedDateRange.end) == 1)
+    if(selectedDateRange != null && selectedDateRange.start.compareTo(selectedDateRange.end) >= 0)
       chartData = new ChartData.empty(chartData.gradientColors);
     var lineChartData = chartData.daily ? dailyData(chartData) : totalData(chartData);
 
@@ -435,7 +435,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           child: Container(
             child: Padding(
                 padding: const EdgeInsets.only(right: 18.0, left: 12.0, top: 24, bottom: 12),
-                child: new LineChart(lineChartData, swapAnimationDuration: Duration(seconds: 1))),
+                child: new LineChart(lineChartData, swapAnimationDuration: Duration(seconds: chartData.available ? 1 : 0))),
           ),
         ),
         Positioned.fill(
@@ -494,6 +494,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     var values = data.values;
     int start = 0;
     int end = values.length - 1;
+
     if(selectedDateRange != null && data.available) {
       DateFormat dateFormat = DateFormat('MMM dd');
       start = data.labels.indexOf(dateFormat.format(selectedDateRange.start));
@@ -631,9 +632,9 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     for (int i = values.length - 1; i > 0; i--) {
       double val = max((values[i] - values[i - 1]).toDouble(), 0.0);
       spots.add(FlSpot(i.toDouble(), val));
-      maxValue = val > maxValue && i >= start && i < end ? val : maxValue;
+      maxValue = val > maxValue && i >= start && i <= end ? val : maxValue;
     }
-    maxValue = maxValue*0.05 + maxValue;
+    if(data.available) maxValue = maxValue*0.05 + maxValue;
     spots.add(FlSpot(0.0, values[0].toDouble()));
     spots = new List.from(spots.reversed);
 
