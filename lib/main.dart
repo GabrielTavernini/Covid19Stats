@@ -336,25 +336,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             ),
             chartsData[country] != null ? createGraph(chartsData[country].deaths) : SizedBox(),
             SizedBox(height: 50),
-            chartsData[country] == null && countryData[country].link != null
-                ? FlatButton(
-                    child: Container(
-                        padding: EdgeInsets.all(10),
-                        decoration: BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.circular(4)),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Text("Load Charts", style: TextStyle(color: Color(0xff232d37), fontSize: 18)),
-                          ],
-                        )),
-                    onPressed: () {
-                      setState(() {
-                        chartsData[country] = new ChartsData();
-                      });
-                      (_refreshIndicatorKey.currentState as dynamic)?.show();
-                    },
-                  )
-                : SizedBox(),
           ],
         ),
       ),
