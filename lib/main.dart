@@ -87,18 +87,16 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         _controller.forward(from: 0.0);
       });
 
-      if (chartsData[localCountry] != null) {
-        if (localCountry != "Global") {
-          url += countryData[localCountry].link;
-          response = await http.get(url);
-          if (response.statusCode != 200) return;
-        }
-
-        var data = Parser.getChartsData(response.body);
-        setState(() {
-          chartsData[localCountry] = data;
-        });
+      if (localCountry != "Global") {
+        url += countryData[localCountry].link;
+        response = await http.get(url);
+        if (response.statusCode != 200) return;
       }
+
+      var data = Parser.getChartsData(response.body);
+      setState(() {
+        chartsData[localCountry] = data;
+      });
     }
   }
 
@@ -364,10 +362,10 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     );
 
     if (result != null) {
-      setState(() {
-        country = result;
-        _controller.forward(from: 0.0);
-      });
+      country = result;
+      if(chartsData[country] == null)
+        chartsData[country] = new ChartsData();
+      _triggerLiquidPullRefresh();
     }
   }
 
