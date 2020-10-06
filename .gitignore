@@ -1,6 +1,7 @@
 *.last_build_id
 *.jks
 key.properties
+.flutter-plugins-dependencies
 
 # Miscellaneous
 *.class
