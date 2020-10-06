@@ -72,8 +72,12 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      (_refreshIndicatorKey.currentState as dynamic)?.show();
+      _triggerLiquidPullRefresh();
     });
+  }
+
+  void _triggerLiquidPullRefresh() {
+    (_refreshIndicatorKey.currentState as dynamic)?.show();
   }
 
   Future<void> refreshData() async {
@@ -344,7 +348,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                       setState(() {
                         chartsData[country] = new ChartsData(daily: settings.defaultDailyView);
                       });
-                      (_refreshIndicatorKey.currentState as dynamic)?.show();
+                      _triggerLiquidPullRefresh();
                     },
                   )
                 : SizedBox(),
@@ -382,7 +386,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           _controller.forward(from: 0.0);
         else if (chartsData[country] == null) {
           chartsData[country] = new ChartsData(daily: settings.defaultDailyView);
-          (_refreshIndicatorKey.currentState as dynamic)?.show();
+          _triggerLiquidPullRefresh();
         }
       });
     }
