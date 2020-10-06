@@ -17,6 +17,10 @@ class ChartsData {
   ChartData total = new ChartData.empty(gradientColorsTotal);
   ChartData recovered = new ChartData.empty(gradientColorsRecovered);
   ChartData deaths = new ChartData.empty(gradientColorsDeaths);
+
+  ChartsData({bool daily = false}) {
+    total.daily = recovered.daily = deaths.daily = daily;
+  }
 }
 
 class ChartData {
@@ -28,5 +32,5 @@ class ChartData {
 
   ChartData(this.labels, this.values, this.gradientColors, {this.daily = false, this.available = true});
 
-  ChartData.empty(this.gradientColors);
+  ChartData.empty(this.gradientColors, {this.daily = false});
 }

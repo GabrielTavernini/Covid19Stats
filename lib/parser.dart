@@ -69,7 +69,7 @@ class Parser {
     return s.split("data: [")[1].split("]")[0].split(",").map(int.parse).toList();
   }
 
-  static ChartsData getChartsData(String body) {
+  static ChartsData getChartsData(String body, bool defaultDailyView) {
     var textToParse = body.split("text: 'Total Cases'")[1];
     var xLabels = getCategories(textToParse);
     var values = getDataPoints(textToParse);
@@ -96,9 +96,9 @@ class Parser {
       });
 
     ChartsData cD = new ChartsData();
-    cD.total = new ChartData(xLabels, values, gradientColorsTotal);
-    cD.recovered = new ChartData(xLabels2, values2, gradientColorsRecovered, available: recoveredDataAvailable);
-    cD.deaths = new ChartData(xLabels3, values3, gradientColorsDeaths);
+    cD.total = new ChartData(xLabels, values, gradientColorsTotal, daily: defaultDailyView);
+    cD.recovered = new ChartData(xLabels2, values2, gradientColorsRecovered, daily: defaultDailyView, available: recoveredDataAvailable);
+    cD.deaths = new ChartData(xLabels3, values3, gradientColorsDeaths, daily: defaultDailyView);
 
     return cD;
   }

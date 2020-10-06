@@ -4,6 +4,7 @@ import 'package:covid19stats/counter.dart';
 import 'package:covid19stats/countryData.dart';
 import 'package:covid19stats/selectCountry.dart';
 import 'package:covid19stats/parser.dart';
+import 'package:covid19stats/settingsDialog.dart';
 import 'package:intl/intl.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -57,6 +58,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     colorScheme: ColorScheme.dark(primary: Colors.red, surface: Colors.red)
   );
   DateTimeRange selectedDateRange;
+  Settings settings = new Settings();
 
   @override
   initState() {
@@ -66,6 +68,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     );
 
     chartsData["Global"] = new ChartsData();
+    settings.load();
 
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -91,7 +94,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           if (response.statusCode != 200) return;
         }
 
-        var data = Parser.getChartsData(response.body);
+        var data = Parser.getChartsData(response.body, settings.defaultDailyView);
         setState(() {
           chartsData[localCountry] = data;
         });
@@ -111,31 +114,24 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       key: _scaffoldKey,
       backgroundColor: Color(0xff232d37),
       appBar: AppBar(
-        title: Text(country), //Text("Covid19 Stats - " + country),
+        title: Text(country, textAlign: TextAlign.center),
         leading: Theme(
           data: datePickerTheme,
           child: Builder(
-            builder: (context) => IconButton(icon: Icon(Icons.calendar_today), color: Colors.white, onPressed: () async {
+            builder: (context) => IconButton(icon: Icon(Icons.calendar_today), color: Colors.white, onPressed: () {
               showDateDialog(context);
             }),
           ),
         ),
         actions: <Widget>[
-          IconButton(icon: Icon(Icons.settings), color: Colors.white, onPressed: (){
-            _scaffoldKey.currentState.showSnackBar(
-              SnackBar(
-                content: Row(
-                  children: [
-                    Icon(Icons.info_outline),
-                    SizedBox(width: 15),
-                    Text("Settings coming in the next updates!")
-                  ],
-                ),
-                elevation: 6.0,
-                behavior: SnackBarBehavior.floating,
-              )
-            );
-          },),
+          Theme(
+            data: datePickerTheme,
+            child: Builder(
+              builder: (context) => IconButton(icon: Icon(Icons.settings), color: Colors.white, onPressed: (){
+                showSettingsDialog(context);
+              }),
+            ),
+          ),
         ],
       ),
       body: LiquidPullToRefresh(
@@ -346,7 +342,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                         )),
                     onPressed: () {
                       setState(() {
-                        chartsData[country] = new ChartsData();
+                        chartsData[country] = new ChartsData(daily: settings.defaultDailyView);
                       });
                       (_refreshIndicatorKey.currentState as dynamic)?.show();
                     },
@@ -382,7 +378,12 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     if (result != null) {
       setState(() {
         country = result;
-        _controller.forward(from: 0.0);
+        if(!settings.alwaysLoadCharts)
+          _controller.forward(from: 0.0);
+        else if (chartsData[country] == null) {
+          chartsData[country] = new ChartsData(daily: settings.defaultDailyView);
+          (_refreshIndicatorKey.currentState as dynamic)?.show();
+        }
       });
     }
   }
@@ -424,9 +425,35 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     }
   }
 
+  Future<void> showSettingsDialog(context) async {
+    if(settings.loaded) {
+      settings = await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return new SettingsDialog(settings);
+          }
+      ) ?? settings;
+      setState(() {});
+    } else {
+      _scaffoldKey.currentState.showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.info_outline),
+                SizedBox(width: 15),
+                Text("Settings are still loading!")
+              ],
+            ),
+            elevation: 6.0,
+            behavior: SnackBarBehavior.floating,
+          )
+      );
+    }
+  }
+
   Widget createGraph(ChartData chartData) {
     if(selectedDateRange != null && selectedDateRange.start.compareTo(selectedDateRange.end) >= 0)
-      chartData = new ChartData.empty(chartData.gradientColors);
+      chartData = new ChartData.empty(chartData.gradientColors, daily: settings.defaultDailyView);
     var lineChartData = chartData.daily ? dailyData(chartData, selectedDateRange) : totalData(chartData, selectedDateRange);
 
     return Stack(
