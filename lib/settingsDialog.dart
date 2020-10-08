@@ -1,19 +1,23 @@
-import 'package:covid19stats/main.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Settings {
   bool defaultDailyView = false;
   bool alwaysLoadCharts = false;
+  bool defaultCountryView = false;
   bool loaded = false;
 
-  Settings({this.alwaysLoadCharts, this.defaultDailyView, this.loaded});
+  Settings(
+      {this.alwaysLoadCharts,
+      this.defaultDailyView,
+      this.defaultCountryView,
+      this.loaded});
 
   Future<void> load() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     this.alwaysLoadCharts = prefs.getBool('alwaysLoadCharts') ?? false;
     this.defaultDailyView = prefs.getBool('defaultDailyView') ?? false;
+    this.defaultCountryView = prefs.getBool('defaultCountryView') ?? false;
     this.loaded = true;
   }
 
@@ -21,21 +25,26 @@ class Settings {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('alwaysLoadCharts', this.alwaysLoadCharts);
     prefs.setBool('defaultDailyView', this.defaultDailyView);
+    prefs.setBool('defaultCountryView', this.defaultCountryView);
     return true;
   }
 
   Settings clone() {
     return new Settings(
-      alwaysLoadCharts: this.alwaysLoadCharts,
-      defaultDailyView: this.defaultDailyView,
-      loaded: true
-    );
+        alwaysLoadCharts: this.alwaysLoadCharts,
+        defaultDailyView: this.defaultDailyView,
+        defaultCountryView: this.defaultCountryView,
+        loaded: true);
   }
 
   dynamic operator [](String key) {
-    switch(key) {
-      case 'alwaysLoadCharts': return this.alwaysLoadCharts;
-      case 'defaultDailyView': return this.defaultDailyView;
+    switch (key) {
+      case 'alwaysLoadCharts':
+        return this.alwaysLoadCharts;
+      case 'defaultDailyView':
+        return this.defaultDailyView;
+      case 'defaultCountryView':
+        return this.defaultCountryView;
     }
   }
 }
@@ -65,8 +74,17 @@ class _SettingsDialogState extends State<SettingsDialog> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         mainAxisSize: MainAxisSize.min,
         children: [
-          getSwitchRow("Always load charts", newSettings.alwaysLoadCharts, (v){newSettings.alwaysLoadCharts = v;}),
-          getSwitchRow("Default to daily view", newSettings.defaultDailyView, (v){newSettings.defaultDailyView = v;}),
+          getSwitchRow("Always load charts", newSettings.alwaysLoadCharts, (v) {
+            newSettings.alwaysLoadCharts = v;
+          }),
+          getSwitchRow("Default to daily view", newSettings.defaultDailyView,
+              (v) {
+            newSettings.defaultDailyView = v;
+          }),
+          getSwitchRow(
+              "Default to country view", newSettings.defaultCountryView, (v) {
+            newSettings.defaultCountryView = v;
+          }),
         ],
       ),
       actions: <Widget>[
@@ -96,7 +114,9 @@ class _SettingsDialogState extends State<SettingsDialog> {
         Switch(
           value: value,
           onChanged: (newValue) {
-            setState(() {setValue(newValue);});
+            setState(() {
+              setValue(newValue);
+            });
           },
           activeTrackColor: Colors.red[300],
           activeColor: Colors.red,
