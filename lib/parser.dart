@@ -70,9 +70,18 @@ class Parser {
   }
 
   static ChartsData getChartsData(String body, bool defaultDailyView) {
-    var textToParse = body.split("text: 'Total Cases'")[1];
-    var xLabels = getCategories(textToParse);
-    var values = getDataPoints(textToParse);
+    var textToParse;
+    var xLabels, values;
+    var casesDataAvailable = false;
+    try {
+      textToParse = body.split("text: 'Total Cases'")[1];
+      xLabels = getCategories(textToParse);
+      values = getDataPoints(textToParse);
+      casesDataAvailable = true;
+    } on RangeError {
+      xLabels = ["0", "1"];
+      values = [0, 1];
+    }
 
     var xLabels2, values2;
     var recoveredDataAvailable = false;
@@ -86,20 +95,22 @@ class Parser {
       values2 = [0, 1];
     }
 
-    textToParse = body.split("text: 'Total Deaths'")[1];
-    var xLabels3 = getCategories(textToParse);
-    var values3 = getDataPoints(textToParse);
-
-    /*if(recoveredDataAvailable)
-      values2.asMap().forEach((index, value) {
-        values2[index] = values[index] - values3[index] - value;
-      });
-    */
+    var xLabels3, values3;
+    var deathsDataAvailable = false;
+    try {
+      textToParse = body.split("text: 'Total Deaths'")[1];
+      xLabels3 = getCategories(textToParse);
+      values3 = getDataPoints(textToParse);
+      deathsDataAvailable = true;
+    } on RangeError {
+      xLabels3 = ["0", "1"];
+      values3 = [0, 1];
+    }
 
     ChartsData cD = new ChartsData();
-    cD.total = new ChartData(xLabels, values, gradientColorsTotal, daily: defaultDailyView);
+    cD.total = new ChartData(xLabels, values, gradientColorsTotal, daily: defaultDailyView, available: casesDataAvailable);
     cD.recovered = new ChartData(xLabels2, values2, gradientColorsRecovered, daily: defaultDailyView, available: recoveredDataAvailable);
-    cD.deaths = new ChartData(xLabels3, values3, gradientColorsDeaths, daily: defaultDailyView);
+    cD.deaths = new ChartData(xLabels3, values3, gradientColorsDeaths, daily: defaultDailyView, available: deathsDataAvailable);
 
     return cD;
   }
