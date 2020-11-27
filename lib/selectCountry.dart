@@ -297,7 +297,9 @@ class _SelectionScreenState extends State<SelectionScreen> {
         double scrollTo = (56 * (index).toDouble() - height);
         if (scrollTo > 0)
           scrollController.animateTo(scrollTo,
-              duration: Duration(milliseconds: (678 * (1 + (index / 30))).toInt()), curve: Curves.ease);
+              duration:
+                  Duration(milliseconds: (678 * (1 + (index / 30))).toInt()),
+              curve: Curves.ease);
       });
     });
   }
@@ -324,9 +326,7 @@ class _SelectionScreenState extends State<SelectionScreen> {
         appBar: AppBar(
           title: Text('Select a country'),
           actions: <Widget>[
-            IconButton(
-                onPressed: toggleSearchField,
-                icon: Icon(Icons.search)),
+            IconButton(onPressed: toggleSearchField, icon: Icon(Icons.search)),
           ],
         ),
         body: Stack(
@@ -338,16 +338,17 @@ class _SelectionScreenState extends State<SelectionScreen> {
                 shrinkWrap: true,
                 itemCount: filteredCountries.length,
                 itemBuilder: (context, i) {
-                  return getListTile(context, i, firstInSearch: searchFieldVisible && i == 0, animated: newSearch && i == 0);
+                  return getListTile(context, i,
+                      firstInSearch: searchFieldVisible && i == 0,
+                      animated: newSearch && i == 0);
                 },
               ),
             ),
             new AnimatedContainer(
               duration: Duration(milliseconds: 250),
               height: searchFieldVisible ? 80 : 0,
-              onEnd: (){
-                if(searchFieldVisible)
-                  textFieldFocusNode.requestFocus();
+              onEnd: () {
+                if (searchFieldVisible) textFieldFocusNode.requestFocus();
               },
               child: new Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -360,15 +361,19 @@ class _SelectionScreenState extends State<SelectionScreen> {
                         focusNode: textFieldFocusNode,
                         enabled: searchFieldVisible,
                         controller: _controller,
-                        decoration: new InputDecoration(hintText: 'Search', border: InputBorder.none),
-                        onTap: (){
-                          if(newSearch = true)
-                            newSearch = false;
+                        decoration: new InputDecoration(
+                            hintText: 'Search', border: InputBorder.none),
+                        onTap: () {
+                          if (newSearch = true) newSearch = false;
                         },
                         onChanged: (String value) {
                           setState(() {
                             newSearch = false;
-                            filteredCountries = widget.countries.where((s) => s.toLowerCase().contains(value.toLowerCase())).toList();
+                            filteredCountries = widget.countries
+                                .where((s) => s
+                                    .toLowerCase()
+                                    .contains(value.toLowerCase()))
+                                .toList();
                           });
                         },
                       ),
@@ -385,7 +390,8 @@ class _SelectionScreenState extends State<SelectionScreen> {
         ));
   }
 
-  Widget getListTile(context, i, {bool firstInSearch = false, bool animated = false}) {
+  Widget getListTile(context, i,
+      {bool firstInSearch = false, bool animated = false}) {
     return InkWell(
       onTap: () {
         Navigator.pop(context, filteredCountries[i]);
@@ -396,34 +402,45 @@ class _SelectionScreenState extends State<SelectionScreen> {
         margin: EdgeInsets.only(top: firstInSearch ? 72 : 0),
         padding: EdgeInsets.symmetric(horizontal: 20),
         decoration: new BoxDecoration(
-            color: i % 2 == 0 ? Colors.transparent : Color.fromARGB(10, 255, 255, 255)),
+            color: i % 2 == 0
+                ? Colors.transparent
+                : Color.fromARGB(10, 255, 255, 255)),
         child: ListTile(
-          title: Row(
-            children: <Widget>[
-              Text(
-                filteredCountries[i] +
-                    (countryFlags.containsKey(filteredCountries[i])
-                        ? "  " + countryFlags[filteredCountries[i]]
-                        : ""),
-                style: TextStyle(color: Colors.white, fontSize: 22),
-              ),
-              SizedBox(
-                width: 15,
-              ),
-              filteredCountries[i] == "Global"
-                  ? Icon(
-                Icons.public,
-                color: Colors.white,
-              )
-                  : SizedBox(),
-            ],
-          ),
+          title: filteredCountries[i] != "Global"
+              ? Container(
+                  width: filteredCountries[i] == widget.selectedCountry
+                      ? MediaQuery.of(context).size.width - 120
+                      : MediaQuery.of(context).size.width - 80,
+                  child: Text(
+                    filteredCountries[i] +
+                        (countryFlags.containsKey(filteredCountries[i])
+                            ? "  " + countryFlags[filteredCountries[i]]
+                            : ""),
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: Colors.white, fontSize: 22),
+                  ),
+                )
+              : Row(
+                  children: [
+                    Text(
+                      "Global",
+                      style: TextStyle(color: Colors.white, fontSize: 22),
+                    ),
+                    SizedBox(
+                      width: 15,
+                    ),
+                    Icon(
+                      Icons.public,
+                      color: Colors.white,
+                    )
+                  ],
+                ),
           trailing: filteredCountries[i] == widget.selectedCountry
               ? Icon(
-            Icons.check,
-            size: 30,
-            color: Colors.white,
-          )
+                  Icons.check,
+                  size: 30,
+                  color: Colors.white,
+                )
               : null,
         ),
       ),
