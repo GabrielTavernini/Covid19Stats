@@ -94,6 +94,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         }
 
         var data = Parser.getChartsData(response.body, settings.defaultDailyView);
+        checkRangeSetting();
         setState(() {
           chartsData[localCountry] = data;
         });
@@ -424,13 +425,17 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
   Future<void> showSettingsDialog(context) async {
     if (settings.loaded) {
+      int prevRange = settings.rangeSetting;
       settings = await showDialog(
               context: context,
               builder: (BuildContext context) {
                 return new SettingsDialog(settings);
-              }) ??
-          settings;
-      setState(() {});
+              }) ?? settings;
+
+      setState(() {
+        if(prevRange != settings.rangeSetting)
+          checkRangeSetting();
+      });
     } else {
       _scaffoldKey.currentState.showSnackBar(SnackBar(
         content: Row(
@@ -442,11 +447,40 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     }
   }
 
+  void checkRangeSetting() {
+    if (chartsData[country] != null && chartsData[country].total.available) {
+      int firstDay = int.parse(chartsData[country].total.labels.first.split(" ")[1]);
+      int firstMonth = months.indexOf(chartsData[country].total.labels.first.split(" ")[0]) + 1;
+      DateTime firstDate = new DateTime(2020, firstMonth, firstDay);
+
+      int lastDay = int.parse(chartsData[country].total.labels.last.split(" ")[1]);
+      int lastMonth = months.indexOf(chartsData[country].total.labels.last.split(" ")[0]) + 1;
+      DateTime lastDate = new DateTime(2020, lastMonth, lastDay);
+
+      switch(settings.rangeSetting) {
+        case 0:
+          selectedDateRange = DateTimeRange(
+              start: lastDate.subtract(Duration(days: 7)),
+              end: lastDate
+          );
+          break;
+        case 1:
+          selectedDateRange = DateTimeRange(
+              start: lastDate.subtract(Duration(days: 28)),
+              end: lastDate
+          );
+          break;
+        case 2:
+          selectedDateRange = null;
+          break;
+      }
+    }
+  }
+
   Widget createGraph(ChartData chartData) {
     if (selectedDateRange != null && selectedDateRange.start.compareTo(selectedDateRange.end) >= 0)
       chartData = new ChartData.empty(chartData.gradientColors, daily: settings.defaultDailyView);
-    var lineChartData =
-        chartData.daily ? dailyData(chartData, selectedDateRange) : totalData(chartData, selectedDateRange);
+    var lineChartData = chartData.daily ? dailyData(chartData, selectedDateRange) : totalData(chartData, selectedDateRange);
 
     return Stack(
       children: <Widget>[

@@ -4,14 +4,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 class Settings {
   bool defaultDailyView = false;
   bool alwaysLoadCharts = false;
+  int rangeSetting = 2;
   bool loaded = false;
 
-  Settings({this.alwaysLoadCharts, this.defaultDailyView, this.loaded});
+  Settings({this.alwaysLoadCharts, this.defaultDailyView, this.rangeSetting, this.loaded});
 
   Future<void> load() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     this.alwaysLoadCharts = prefs.getBool('alwaysLoadCharts') ?? false;
     this.defaultDailyView = prefs.getBool('defaultDailyView') ?? false;
+    this.rangeSetting = prefs.getInt('rangeSetting') ?? 2;
     this.loaded = true;
   }
 
@@ -19,11 +21,12 @@ class Settings {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('alwaysLoadCharts', this.alwaysLoadCharts);
     prefs.setBool('defaultDailyView', this.defaultDailyView);
+    prefs.setInt('rangeSetting', this.rangeSetting);
     return true;
   }
 
   Settings clone() {
-    return new Settings(alwaysLoadCharts: this.alwaysLoadCharts, defaultDailyView: this.defaultDailyView, loaded: true);
+    return new Settings(alwaysLoadCharts: this.alwaysLoadCharts, defaultDailyView: this.defaultDailyView, rangeSetting: this.rangeSetting, loaded: true);
   }
 
   dynamic operator [](String key) {
@@ -32,6 +35,8 @@ class Settings {
         return this.alwaysLoadCharts;
       case 'defaultDailyView':
         return this.defaultDailyView;
+      case 'rangeSetting':
+        return this.rangeSetting;
     }
   }
 }
@@ -61,6 +66,29 @@ class _SettingsDialogState extends State<SettingsDialog> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         mainAxisSize: MainAxisSize.min,
         children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(child: Text("Default range")),
+              Expanded(
+                child: DropdownButtonFormField(
+                  dropdownColor: Color(0xff232d37),
+                  decoration: InputDecoration(border: InputBorder.none),
+                  value: newSettings.rangeSetting,
+                  items: [
+                    DropdownMenuItem(child: Text("Last 7 days"), value: 0),
+                    DropdownMenuItem(child: Text("Last 28 days"), value: 1),
+                    DropdownMenuItem(child: Text("Everything"), value: 2)
+                  ],
+                  onChanged: (value){
+                    setState(() {
+                      newSettings.rangeSetting = value;
+                    });
+                  },
+                ),
+              ),
+            ],
+          ),
           getSwitchRow("Always load charts", newSettings.alwaysLoadCharts, (v) {
             newSettings.alwaysLoadCharts = v;
           }),
