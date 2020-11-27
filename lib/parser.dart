@@ -24,7 +24,7 @@ class Parser {
     try {
       return int.parse(s.split("<")[0].replaceAll(",", "").replaceAll("+", ""));
     } catch (e) {
-      return 0;
+      return -1;
     }
   }
 
@@ -90,10 +90,11 @@ class Parser {
     var xLabels3 = getCategories(textToParse);
     var values3 = getDataPoints(textToParse);
 
-    if(recoveredDataAvailable)
+    /*if(recoveredDataAvailable)
       values2.asMap().forEach((index, value) {
         values2[index] = values[index] - values3[index] - value;
       });
+    */
 
     ChartsData cD = new ChartsData();
     cD.total = new ChartData(xLabels, values, gradientColorsTotal, daily: defaultDailyView);

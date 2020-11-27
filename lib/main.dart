@@ -1,17 +1,15 @@
-import 'dart:io';
 import 'package:covid19stats/chartsData.dart';
 import 'package:covid19stats/counter.dart';
 import 'package:covid19stats/countryData.dart';
 import 'package:covid19stats/selectCountry.dart';
 import 'package:covid19stats/parser.dart';
 import 'package:covid19stats/settingsDialog.dart';
-import 'package:intl/intl.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:math';
 
+import 'dart:math';
 import 'chartsUtils.dart';
 import 'dateRangeDialog.dart';
 
@@ -42,9 +40,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   List<String> months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   final GlobalKey _refreshIndicatorKey = GlobalKey();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  Map<String, CountryData> countryData = {
-    "Global": new CountryData()
-  };
+  Map<String, CountryData> countryData = {"Global": new CountryData()};
   Map<String, ChartsData> chartsData = {};
   String country = "Global";
 
@@ -52,11 +48,10 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   AnimationController _controller;
 
   ThemeData datePickerTheme = ThemeData(
-    brightness: Brightness.dark,
-    accentColor: Colors.red,
-    dialogBackgroundColor: Color(0xff232d37),
-    colorScheme: ColorScheme.dark(primary: Colors.red, surface: Colors.red)
-  );
+      brightness: Brightness.dark,
+      accentColor: Colors.red,
+      dialogBackgroundColor: Color(0xff232d37),
+      colorScheme: ColorScheme.dark(primary: Colors.red, surface: Colors.red));
   DateTimeRange selectedDateRange;
   Settings settings = new Settings();
 
@@ -122,18 +117,24 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         leading: Theme(
           data: datePickerTheme,
           child: Builder(
-            builder: (context) => IconButton(icon: Icon(Icons.calendar_today), color: Colors.white, onPressed: () {
-              showDateDialog(context);
-            }),
+            builder: (context) => IconButton(
+                icon: Icon(Icons.calendar_today),
+                color: Colors.white,
+                onPressed: () {
+                  showDateDialog(context);
+                }),
           ),
         ),
         actions: <Widget>[
           Theme(
             data: datePickerTheme,
             child: Builder(
-              builder: (context) => IconButton(icon: Icon(Icons.settings), color: Colors.white, onPressed: (){
-                showSettingsDialog(context);
-              }),
+              builder: (context) => IconButton(
+                  icon: Icon(Icons.settings),
+                  color: Colors.white,
+                  onPressed: () {
+                    showSettingsDialog(context);
+                  }),
             ),
           ),
         ],
@@ -148,39 +149,39 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           shrinkWrap: true,
           children: <Widget>[
             SizedBox(height: 20),
-            if(countryData[country].totalTests != 0) ...[
+            if (countryData[country].totalTests > 0) ...[
               Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text(
-                  'Total Tests:',
-                  style: TextStyle(color: Colors.blue[200], fontSize: 22, fontWeight: FontWeight.bold),
-                ),
-                Counter(
-                  textStyle: TextStyle(color: Colors.blue[200], fontSize: 22, fontWeight: FontWeight.bold),
-                  animation: new StepTween(
-                    begin: 0, //prevTotalCases,
-                    end: countryData[country].totalTests,
-                  ).animate(_controller),
-                ),
-              ],
-            ),
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text(
+                    'Total Tests:',
+                    style: TextStyle(color: Colors.blue[200], fontSize: 22, fontWeight: FontWeight.bold),
+                  ),
+                  Counter(
+                    textStyle: TextStyle(color: Colors.blue[200], fontSize: 22, fontWeight: FontWeight.bold),
+                    animation: new StepTween(
+                      begin: 0, //prevTotalCases,
+                      end: countryData[country].totalTests,
+                    ).animate(_controller),
+                  ),
+                ],
+              ),
               Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text(
-                  'Tests per Mln:',
-                  style: TextStyle(color: Colors.blue[200], fontSize: 18),
-                ),
-                Counter(
-                  textStyle: TextStyle(color: Colors.blue[200], fontSize: 18),
-                  animation: new StepTween(
-                    begin: 0, //prevTotalCases,
-                    end: countryData[country].testsPerMln,
-                  ).animate(_controller),
-                ),
-              ],
-            ),
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text(
+                    'Tests per Mln:',
+                    style: TextStyle(color: Colors.blue[200], fontSize: 18),
+                  ),
+                  Counter(
+                    textStyle: TextStyle(color: Colors.blue[200], fontSize: 18),
+                    animation: new StepTween(
+                      begin: 0, //prevTotalCases,
+                      end: countryData[country].testsPerMln,
+                    ).animate(_controller),
+                  ),
+                ],
+              ),
               SizedBox(height: 30)
             ],
             Row(
@@ -193,7 +194,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 Counter(
                   textStyle: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
                   animation: new StepTween(
-                    begin: 0, //prevTotalCases,
+                    begin: min(countryData[country].totalCases, 0), //prevTotalCases,
                     end: countryData[country].totalCases,
                   ).animate(_controller),
                 ),
@@ -209,7 +210,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 Counter(
                   textStyle: TextStyle(color: Colors.white, fontSize: 18),
                   animation: new StepTween(
-                    begin: 0, //prevTotalCases,
+                    begin: min(countryData[country].casesPerMln.toInt(), 0), //prevTotalCases,
                     end: countryData[country].casesPerMln.toInt(),
                   ).animate(_controller),
                 ),
@@ -225,7 +226,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 Counter(
                   textStyle: TextStyle(color: Colors.white, fontSize: 18),
                   animation: new StepTween(
-                    begin: 0, //prevTotalCases,
+                    begin: min(countryData[country].newCases, 0), //prevTotalCases,
                     end: countryData[country].newCases,
                   ).animate(_controller),
                 ),
@@ -237,14 +238,14 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Text(
-                  'Total Recovered:',
+                  'Active Cases:',
                   style: TextStyle(color: Colors.green, fontSize: 22, fontWeight: FontWeight.bold),
                 ),
                 Counter(
                   textStyle: TextStyle(color: Colors.green, fontSize: 22, fontWeight: FontWeight.bold),
                   animation: new StepTween(
-                    begin: 0, //prevRecoveredCases,
-                    end: countryData[country].totalRecovered,
+                    begin: min(countryData[country].activeCases, 0), //prevRecoveredCases,
+                    end: countryData[country].activeCases,
                   ).animate(_controller),
                 )
               ],
@@ -253,14 +254,14 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Text(
-                  'Active Cases:',
+                  'Recovered:',
                   style: TextStyle(color: Colors.green, fontSize: 18),
                 ),
                 Counter(
                   textStyle: TextStyle(color: Colors.green, fontSize: 18),
                   animation: new StepTween(
-                    begin: 0, //prevTotalCases,
-                    end: countryData[country].activeCases,
+                    begin: min(countryData[country].totalRecovered, 0), //prevTotalCases,
+                    end: countryData[country].totalRecovered,
                   ).animate(_controller),
                 ),
               ],
@@ -277,7 +278,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 Counter(
                   textStyle: TextStyle(color: Colors.red, fontSize: 22, fontWeight: FontWeight.bold),
                   animation: new StepTween(
-                    begin: 0, //prevDeathCases,
+                    begin: min(countryData[country].totalDeaths, 0), //prevDeathCases,
                     end: countryData[country].totalDeaths,
                   ).animate(_controller),
                 )
@@ -293,7 +294,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 Counter(
                   textStyle: TextStyle(color: Colors.red, fontSize: 18),
                   animation: new StepTween(
-                    begin: 0, //prevTotalCases,
+                    begin: min(countryData[country].deathsPerMln.toInt(), 0), //prevTotalCases,
                     end: countryData[country].deathsPerMln.toInt(),
                   ).animate(_controller),
                 ),
@@ -309,7 +310,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 Counter(
                   textStyle: TextStyle(color: Colors.red, fontSize: 18),
                   animation: new StepTween(
-                    begin: 0, //prevTotalCases,
+                    begin: min(countryData[country].criticalCases, 0), //prevTotalCases,
                     end: countryData[country].criticalCases,
                   ).animate(_controller),
                 ),
@@ -325,7 +326,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 Counter(
                   textStyle: TextStyle(color: Colors.red, fontSize: 18),
                   animation: new StepTween(
-                    begin: 0, //prevTotalCases,
+                    begin: min(countryData[country].newDeaths, 0), //prevTotalCases,
                     end: countryData[country].newDeaths,
                   ).animate(_controller),
                 ),
@@ -382,7 +383,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     if (result != null) {
       setState(() {
         country = result;
-        if(!settings.alwaysLoadCharts)
+        if (!settings.alwaysLoadCharts)
           _controller.forward(from: 0.0);
         else if (chartsData[country] == null) {
           chartsData[country] = new ChartsData(daily: settings.defaultDailyView);
@@ -393,7 +394,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   }
 
   Future<void> showDateDialog(context) async {
-    if(chartsData[country] != null && chartsData[country].total.available) {
+    if (chartsData[country] != null && chartsData[country].total.available) {
       int firstDay = int.parse(chartsData[country].total.labels.first.split(" ")[1]);
       int firstMonth = months.indexOf(chartsData[country].total.labels.first.split(" ")[0]) + 1;
       DateTime firstDate = new DateTime(2020, firstMonth, firstDay);
@@ -403,62 +404,49 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       DateTime lastDate = new DateTime(2020, lastMonth, lastDay);
 
       selectedDateRange = await showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return new DateRangeDialog(
-                DateTimeRange(start: firstDate, end: lastDate),
-                selectedDateRange ?? DateTimeRange(start: firstDate, end: lastDate)
-            );
-          }
-      ) ?? selectedDateRange;
+              context: context,
+              builder: (BuildContext context) {
+                return new DateRangeDialog(DateTimeRange(start: firstDate, end: lastDate),
+                    selectedDateRange ?? DateTimeRange(start: firstDate, end: lastDate));
+              }) ??
+          selectedDateRange;
       setState(() {});
     } else {
-      _scaffoldKey.currentState.showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                Icon(Icons.info_outline),
-                SizedBox(width: 15),
-                Text("Charts data is not yet available!")
-              ],
-            ),
-            elevation: 6.0,
-            behavior: SnackBarBehavior.floating,
-          )
-      );
+      _scaffoldKey.currentState.showSnackBar(SnackBar(
+        content: Row(
+          children: [Icon(Icons.info_outline), SizedBox(width: 15), Text("Charts data is not yet available!")],
+        ),
+        elevation: 6.0,
+        behavior: SnackBarBehavior.floating,
+      ));
     }
   }
 
   Future<void> showSettingsDialog(context) async {
-    if(settings.loaded) {
+    if (settings.loaded) {
       settings = await showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return new SettingsDialog(settings);
-          }
-      ) ?? settings;
+              context: context,
+              builder: (BuildContext context) {
+                return new SettingsDialog(settings);
+              }) ??
+          settings;
       setState(() {});
     } else {
-      _scaffoldKey.currentState.showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                Icon(Icons.info_outline),
-                SizedBox(width: 15),
-                Text("Settings are still loading!")
-              ],
-            ),
-            elevation: 6.0,
-            behavior: SnackBarBehavior.floating,
-          )
-      );
+      _scaffoldKey.currentState.showSnackBar(SnackBar(
+        content: Row(
+          children: [Icon(Icons.info_outline), SizedBox(width: 15), Text("Settings are still loading!")],
+        ),
+        elevation: 6.0,
+        behavior: SnackBarBehavior.floating,
+      ));
     }
   }
 
   Widget createGraph(ChartData chartData) {
-    if(selectedDateRange != null && selectedDateRange.start.compareTo(selectedDateRange.end) >= 0)
+    if (selectedDateRange != null && selectedDateRange.start.compareTo(selectedDateRange.end) >= 0)
       chartData = new ChartData.empty(chartData.gradientColors, daily: settings.defaultDailyView);
-    var lineChartData = chartData.daily ? dailyData(chartData, selectedDateRange) : totalData(chartData, selectedDateRange);
+    var lineChartData =
+        chartData.daily ? dailyData(chartData, selectedDateRange) : totalData(chartData, selectedDateRange);
 
     return Stack(
       children: <Widget>[
@@ -467,13 +455,14 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           child: Container(
             child: Padding(
                 padding: const EdgeInsets.only(right: 18.0, left: 12.0, top: 24, bottom: 12),
-                child: new LineChart(lineChartData, swapAnimationDuration: Duration(seconds: chartData.available ? 1 : 0))),
+                child: new LineChart(lineChartData,
+                    swapAnimationDuration: Duration(seconds: chartData.available ? 1 : 0))),
           ),
         ),
         Positioned.fill(
           child: Visibility(
             visible: !chartData.available,
-            child: Align (
+            child: Align(
               alignment: Alignment.center,
               child: Container(
                 margin: EdgeInsets.fromLTRB(40, 0, 0, 16),

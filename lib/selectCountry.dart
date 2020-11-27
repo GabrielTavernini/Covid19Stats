@@ -1,7 +1,4 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
-import 'dart:developer' as dev;
 
 class SelectionScreen extends StatefulWidget {
   SelectionScreen({this.countries, this.selectedCountry}) : super();

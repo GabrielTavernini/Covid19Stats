@@ -1,4 +1,3 @@
-import 'package:covid19stats/main.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 

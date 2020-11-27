@@ -11,7 +11,7 @@ class Counter extends AnimatedWidget {
   @override
   build(BuildContext context) {
     return new Text(
-      new NumberFormat.decimalPattern(Platform.localeName).format(animation.value),
+      animation.value >= 0 ? new NumberFormat.decimalPattern(Platform.localeName).format(animation.value) : "N/A",
       style: textStyle,
     );
   }
