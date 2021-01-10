@@ -1,4 +1,4 @@
-# Covid19Stats
+# Covid19Stats [![GitHub stars](https://img.shields.io/github/stars/GabrielTavernini/Covid19Stats?style=social)](https://github.com/GabrielTavernini/Covid19Stats) [![Twitter Follow](https://img.shields.io/twitter/follow/TaveGabriel?label=Follow&style=social)](https://twitter.com/TaveGabriel)
 It's a simple app to visualize charts and statistics about the current Covid-19 emergency. <br>
 It's developed using Flutter and some plugins such as [LiquidPullToRefresh](https://github.com/aagarwal1012/Liquid-Pull-To-Refresh) and [FlCharts](https://github.com/imaNNeoFighT/fl_chart)<br>
 All the data visualized in the app is taken from the website [Worldometers](https://www.worldometers.info/coronavirus/) 📈<br><br>
