@@ -7,6 +7,19 @@ import 'package:intl/intl.dart';
 
 import 'chartsData.dart';
 
+List<String> months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+DateTimeRange getChartRange(ChartsData data) {
+  int firstDay = int.parse(data.total.labels.first.split(" ")[1]);
+  int firstMonth = months.indexOf(data.total.labels.first.split(" ")[0]) + 1;
+  DateTime firstDate = new DateTime(2020, firstMonth, firstDay);
+
+  int lastDay = int.parse(data.total.labels.last.split(" ")[1]);
+  int lastMonth = months.indexOf(data.total.labels.last.split(" ")[0]) + 1;
+  DateTime lastDate = new DateTime(2021, lastMonth, lastDay);
+
+  return new DateTimeRange(start: firstDate, end: lastDate);
+}
+
 String generateYLabel(double value) {
   var label = value < 0 ? "-" : "";
   var offset = value < 0 ? 1 : 0;

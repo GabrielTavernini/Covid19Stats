@@ -37,7 +37,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
-  List<String> months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   final GlobalKey _refreshIndicatorKey = GlobalKey();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   Map<String, CountryData> countryData = {"Global": new CountryData()};
@@ -384,6 +383,13 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     if (result != null) {
       setState(() {
         country = result;
+        DateTimeRange range = getChartRange(chartsData[country]);
+        if(selectedDateRange.end.compareTo(range.end) > 0)
+          selectedDateRange = new DateTimeRange(start: selectedDateRange.start, end: range.end);
+
+        if(selectedDateRange.start.compareTo(range.start) < 0)
+          selectedDateRange = new DateTimeRange(start: range.start, end: selectedDateRange.end);
+
         if (!settings.alwaysLoadCharts)
           _controller.forward(from: 0.0);
         else if (chartsData[country] == null) {
@@ -396,21 +402,12 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
   Future<void> showDateDialog(context) async {
     if (chartsData[country] != null && chartsData[country].total.available) {
-      int firstDay = int.parse(chartsData[country].total.labels.first.split(" ")[1]);
-      int firstMonth = months.indexOf(chartsData[country].total.labels.first.split(" ")[0]) + 1;
-      DateTime firstDate = new DateTime(2020, firstMonth, firstDay);
-
-      int lastDay = int.parse(chartsData[country].total.labels.last.split(" ")[1]);
-      int lastMonth = months.indexOf(chartsData[country].total.labels.last.split(" ")[0]) + 1;
-      DateTime lastDate = new DateTime(2020, lastMonth, lastDay);
-
+      DateTimeRange range = getChartRange(chartsData[country]);
       selectedDateRange = await showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return new DateRangeDialog(DateTimeRange(start: firstDate, end: lastDate),
-                    selectedDateRange ?? DateTimeRange(start: firstDate, end: lastDate));
-              }) ??
-          selectedDateRange;
+        context: context,
+        builder: (BuildContext context) {
+          return new DateRangeDialog(range, selectedDateRange ?? range);
+        }) ?? selectedDateRange;
       setState(() {});
     } else {
       _scaffoldKey.currentState.showSnackBar(SnackBar(
@@ -449,25 +446,18 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
   void checkRangeSetting() {
     if (chartsData[country] != null && chartsData[country].total.available) {
-      int firstDay = int.parse(chartsData[country].total.labels.first.split(" ")[1]);
-      int firstMonth = months.indexOf(chartsData[country].total.labels.first.split(" ")[0]) + 1;
-      DateTime firstDate = new DateTime(2020, firstMonth, firstDay);
-
-      int lastDay = int.parse(chartsData[country].total.labels.last.split(" ")[1]);
-      int lastMonth = months.indexOf(chartsData[country].total.labels.last.split(" ")[0]) + 1;
-      DateTime lastDate = new DateTime(2020, lastMonth, lastDay);
-
+      DateTimeRange range = getChartRange(chartsData[country]);
       switch(settings.rangeSetting) {
         case 0:
           selectedDateRange = DateTimeRange(
-              start: lastDate.subtract(Duration(days: 7)),
-              end: lastDate
+              start: range.end.subtract(Duration(days: 7)),
+              end: range.end
           );
           break;
         case 1:
           selectedDateRange = DateTimeRange(
-              start: lastDate.subtract(Duration(days: 28)),
-              end: lastDate
+              start: range.end.subtract(Duration(days: 28)),
+              end: range.end
           );
           break;
         case 2:
