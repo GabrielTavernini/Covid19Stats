@@ -62,7 +62,7 @@ class Parser {
   }
 
   static List<String> getCategories(String s) {
-    return s.split("categories: [")[1].split("]")[0].replaceAll("\"", "").split(",");
+    return s.split("categories: [\"")[1].split("\"]")[0].replaceAll("\",\"", ";").split(";");
   }
 
   static List<int> getDataPoints(String s) {

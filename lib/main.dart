@@ -42,6 +42,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   Map<String, CountryData> countryData = {"Global": new CountryData()};
   Map<String, ChartsData> chartsData = {};
   String country = "Global";
+  bool justStarted = true;
 
   int springAnimationDuration = 750;
   AnimationController _controller;
@@ -93,10 +94,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         }
 
         var data = Parser.getChartsData(response.body, settings.defaultDailyView);
+        setState(() { chartsData[localCountry] = data;  });
         checkRangeSetting();
-        setState(() {
-          chartsData[localCountry] = data;
-        });
       }
     }
   }
@@ -383,12 +382,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     if (result != null) {
       setState(() {
         country = result;
-        DateTimeRange range = getChartRange(chartsData[country]);
-        if(selectedDateRange.end.compareTo(range.end) > 0)
-          selectedDateRange = new DateTimeRange(start: selectedDateRange.start, end: range.end);
-
-        if(selectedDateRange.start.compareTo(range.start) < 0)
-          selectedDateRange = new DateTimeRange(start: range.start, end: selectedDateRange.end);
+        checkRangeSetting();
 
         if (!settings.alwaysLoadCharts)
           _controller.forward(from: 0.0);
@@ -447,22 +441,33 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   void checkRangeSetting() {
     if (chartsData[country] != null && chartsData[country].total.available) {
       DateTimeRange range = getChartRange(chartsData[country]);
-      switch(settings.rangeSetting) {
-        case 0:
-          selectedDateRange = DateTimeRange(
-              start: range.end.subtract(Duration(days: 7)),
-              end: range.end
-          );
-          break;
-        case 1:
-          selectedDateRange = DateTimeRange(
-              start: range.end.subtract(Duration(days: 28)),
-              end: range.end
-          );
-          break;
-        case 2:
-          selectedDateRange = null;
-          break;
+      if(selectedDateRange != null) {
+        if (selectedDateRange.end.compareTo(range.end) > 0)
+          selectedDateRange = new DateTimeRange(start: selectedDateRange.start, end: range.end);
+
+        if (selectedDateRange.start.compareTo(range.start) < 0)
+          selectedDateRange = new DateTimeRange(start: range.start, end: selectedDateRange.end);
+      }
+
+      if(justStarted) {
+        justStarted = false;
+        switch (settings.rangeSetting) {
+          case 0:
+            selectedDateRange = DateTimeRange(
+                start: range.end.subtract(Duration(days: 7)),
+                end: range.end
+            );
+            break;
+          case 1:
+            selectedDateRange = DateTimeRange(
+                start: range.end.subtract(Duration(days: 28)),
+                end: range.end
+            );
+            break;
+          case 2:
+            selectedDateRange = null;
+            break;
+        }
       }
     }
   }

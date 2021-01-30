@@ -9,13 +9,15 @@ import 'chartsData.dart';
 
 List<String> months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 DateTimeRange getChartRange(ChartsData data) {
-  int firstDay = int.parse(data.total.labels.first.split(" ")[1]);
+  int firstDay = int.parse(data.total.labels.first.split(" ")[1].split(",")[0]);
   int firstMonth = months.indexOf(data.total.labels.first.split(" ")[0]) + 1;
-  DateTime firstDate = new DateTime(2020, firstMonth, firstDay);
+  int firstYear = int.parse(data.total.labels.first.split(",")[1]);
+  DateTime firstDate = new DateTime(firstYear, firstMonth, firstDay);
 
-  int lastDay = int.parse(data.total.labels.last.split(" ")[1]);
+  int lastDay = int.parse(data.total.labels.last.split(" ")[1].split(",")[0]);
   int lastMonth = months.indexOf(data.total.labels.last.split(" ")[0]) + 1;
-  DateTime lastDate = new DateTime(2021, lastMonth, lastDay);
+  int lastYear = int.parse(data.total.labels.last.split(",")[1]);
+  DateTime lastDate = new DateTime(lastYear, lastMonth, lastDay);
 
   return new DateTimeRange(start: firstDate, end: lastDate);
 }
@@ -49,7 +51,7 @@ LineChartData totalData(ChartData data, DateTimeRange selectedDateRange) {
   int end = values.length - 1;
 
   if (selectedDateRange != null && data.available) {
-    DateFormat dateFormat = DateFormat('MMM dd');
+    DateFormat dateFormat = DateFormat('MMM dd, yyyy');
     start = data.labels.indexOf(dateFormat.format(selectedDateRange.start));
     end = data.labels.indexOf(dateFormat.format(selectedDateRange.end));
   }
@@ -73,7 +75,7 @@ LineChartData dailyData(ChartData data, DateTimeRange selectedDateRange) {
   int start = 0;
   int end = values.length - 1;
   if (selectedDateRange != null && data.available) {
-    DateFormat dateFormat = DateFormat('MMM dd');
+    DateFormat dateFormat = DateFormat('MMM dd, yyyy');
     start = data.labels.indexOf(dateFormat.format(selectedDateRange.start));
     end = data.labels.indexOf(dateFormat.format(selectedDateRange.end));
   }
@@ -143,7 +145,7 @@ LineChartData generateLineChart(int start, int end, List<String> labels, List<Fl
           );
         },
         getTitles: (value) {
-          return labels[value.toInt()];
+          return labels[value.toInt()].split(",")[0];
         },
         margin: 8,
       ),
